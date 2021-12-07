@@ -36,7 +36,7 @@ class Customers(db.Model):
     nr_phone_res = db.Column(db.String(11), nullable=True, unique=True),
     nr_phone_ces = db.Column(db.String(11), nullable=True, unique=True),
     ds_email = db.Column(db.String(50), nullable=True, unique=True)
-    id_report = db.Column(db.Integer, db.ForeignKey('LaudosModel.id_laudo')),
+    id_report = db.Column(db.Integer, db.ForeignKey('reports.id_report')),
     dt_birthdate = db.Column(db.Date, nullable=False)
 
     appointments = relationship(
