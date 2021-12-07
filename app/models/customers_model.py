@@ -27,15 +27,15 @@ class Customers(db.Model):
 
     id_customer = db.Column(db.Integer, primary_key=True),
     nm_customer = db.Column(db.String(50), nullable=False),
-    nr_cpf = db.Column(db.String(11), nullable=False),
-    nr_rg = db.Column(db.String(11), nullable=False),
+    nr_cpf = db.Column(db.String(11), nullable=False, unique=True),
+    nr_rg = db.Column(db.String(11), nullable=False, unique=True),
     nm_mother = db.Column(db.String(50), nullable=True),
     nm_father = db.Column(db.String(50), nullable=True),
-    nr_work_permit = db.Column(db.String(11), nullable=True),
+    nr_work_permit = db.Column(db.String(11), nullable=True, unique=True),
     ds_adress = db.Column(db.String(50), nullable=False),
-    nr_phone_res = db.Column(db.String(11), nullable=True),
-    nr_phone_ces = db.Column(db.String(11), nullable=True),
-    ds_email = db.Column(db.String(50), nullable=True)
+    nr_phone_res = db.Column(db.String(11), nullable=True, unique=True),
+    nr_phone_ces = db.Column(db.String(11), nullable=True, unique=True),
+    ds_email = db.Column(db.String(50), nullable=True, unique=True)
     id_report = db.Column(db.Integer, db.ForeignKey('LaudosModel.id_laudo')),
     dt_birthdate = db.Column(db.Date, nullable=False)
 
