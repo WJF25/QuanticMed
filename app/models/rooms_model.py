@@ -8,6 +8,7 @@ from sqlalchemy.orm import relationship, backref
 class Rooms(db.Model):
     __tablename__ = "rooms"
 
+    id_room: int
     nm_room: str
     # specialty: Specialties importar model
 
