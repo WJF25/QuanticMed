@@ -1,6 +1,6 @@
 from app.models.sessions_table_model import sessions
 from datetime import date
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref, relationship
 from app.configs.database import db
 from dataclasses import dataclass
 import sqlalchemy
@@ -8,7 +8,7 @@ db: sqlalchemy = db
 
 
 @dataclass
-class CustomersModel(db.Model):
+class Customers(db.Model):
     id_paciente: int
     nm_paciente: str
     nr_cpf: str
@@ -40,7 +40,7 @@ class CustomersModel(db.Model):
     consultas = relationship(
         'TherapistModel',
         secondary=sessions,
-        backref='consultas'
+        backref=backref('customers', uselist=False)
     )
 
     def __iter__(self):

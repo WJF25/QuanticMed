@@ -7,7 +7,7 @@ db: sqlalchemy = db
 
 
 @dataclass
-class TherapistModel(db.Model):
+class Therapist(db.Model):
     id_medico: int
     nm_medico: str
     nr_cpf: str
