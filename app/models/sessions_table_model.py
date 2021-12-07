@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import sqlalchemy
 db: sqlalchemy = sqlalchemy
 
-session = db.Table(
+sessions = db.Table(
     id_consulta=db.Column(db.Integer, primary_key=True),
     id_paciente=db.Column(db.Integer, db.ForeignKey(
         'CustomerModel.id_paciente')),

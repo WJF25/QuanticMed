@@ -1,4 +1,6 @@
+from app.models.sessions_table_model import sessions
 from datetime import date
+from sqlalchemy.orm import relationship
 from app.configs.database import db
 from dataclasses import dataclass
 import sqlalchemy
@@ -34,3 +36,9 @@ class CustomersModel(db.Model):
     ds_email = db.Column(db.String(50), nullable=True)
     id_laudo = db.Column(db.Integer, db.ForeignKey('LaudosModel.id_laudo')),
     dt_data_nasc = db.Column(db.Date, nullable=False)
+
+    consultas = relationship(
+        'TherapistModel',
+        secondary=sessions,
+        backref='consultas'
+    )
