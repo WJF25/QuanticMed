@@ -6,7 +6,7 @@ import sqlalchemy
 db: sqlalchemy = db
 
 
-class TherapistModel(db.Model):
+class Therapist(db.Model):
     id_medico: int
     nm_medico: str
     nr_cpf: str
@@ -16,6 +16,8 @@ class TherapistModel(db.Model):
     ds_senha: str
     fl_admin: str
     nr_acessos: int
+
+    __tablename__ = 'therapists'
 
     id_medico = db.Column(db.Integer, primary_key=True),
     nm_medico = db.Column(db.String(50), nullable=False),
