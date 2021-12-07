@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship, backref
 from datetime import datetime
 from app.models.rooms_model import Rooms
 from app.models.therapists_model import Therapists
+from app.models.clinics_model import Clinics
 import sqlalchemy
 db: sqlalchemy = db
 
@@ -11,10 +12,11 @@ db: sqlalchemy = db
 @dataclass
 class Locations(db.Model):
     __tablename__ = "locations"
-
+    id_location: int
     dt_start: datetime
     dt_end: datetime
-    room: Rooms    
+    room: Rooms 
+    clinic: Clinics
     therapists: Therapists
 
     id_location = db.Column(db.Integer, primary_key=True)
