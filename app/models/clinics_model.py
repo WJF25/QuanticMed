@@ -8,7 +8,7 @@ class Clinics(db.Model):
     id_clinic: int
     nm_clinic: str
     nr_cnpj: str
-    ds_specialities: str
+    ds_specialties: str
     ds_adress: str
     nr_number: int
     ds_complement: str
@@ -26,7 +26,7 @@ class Clinics(db.Model):
     id_clinic = db.Column(db.Integer, primary_key=True),
     nm_clinic = db.column(db.String(40), nullable=False),
     nr_cnpj = db.Column(db.String(15), nullable=False, unique=True),
-    ds_specialities = db.Column(db.String(50), nullable=False),
+    ds_specialties = db.Column(db.String(50), nullable=False),
     ds_adress = db.Column(db.String(30), nullable=False),
     nr_number = db.Column(db.Integer, nullable=False),
     ds_complement = db.Column(db.String(20), nullable=False),
