@@ -46,16 +46,16 @@ class Customers(db.Model):
     )
 
     def __iter__(self):
-        yield 'id_paciente', self.id_customer
-        yield 'nm_paciente', self.nm_customer
+        yield 'id_customer', self.id_customer
+        yield 'nm_customer', self.nm_customer
         yield 'nr_cpf', self.nr_cpf
         yield 'nr_rg', self.nr_rg
-        yield 'nm_mae', self.nm_mother
-        yield 'nm_pai', self.nm_father
-        yield 'nr_carteira', self.nr_work_permit
-        yield 'ds_endereco', self.ds_adress
-        yield 'nr_telefone_res', self.nr_phone_res
-        yield 'nr_telefone_ces', self.nr_phone_ces
+        yield 'nm_mother', self.nm_mother
+        yield 'nm_father', self.nm_father
+        yield 'nr_work_permit', self.nr_work_permit
+        yield 'ds_adress', self.ds_adress
+        yield 'nr_phone_res', self.nr_phone_res
+        yield 'nr_phone_ces', self.nr_phone_ces
         yield 'ds_email', self.ds_email
-        yield 'id_laudo', self.id_report
-        yield 'dt_data_nasc', self.dt_birthdate
+        yield 'id_report', self.id_report
+        yield 'dt_birthdate', self.dt_birthdate
