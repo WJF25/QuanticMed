@@ -6,11 +6,12 @@ from datetime import datetime
 import sqlalchemy
 db: sqlalchemy = db
 
+
 @dataclass
 class Attendant(db.Model):
 
     nm_attendant: str
-    nr_cpf:str
+    nr_cpf: str
     nr_telres: str
     nr_telcel: str
     ds_pass: str
@@ -19,7 +20,7 @@ class Attendant(db.Model):
 
     __tablename__ = 'attendants'
 
-    id_attendant  = db.Column(db.Integer, primary_key = True)
+    id_attendant = db.Column(db.Integer, primary_key=True)
     nm_attendant = db.Column(db.String(50), nullable=False)
     nr_cpf = db.Column(db.String(11), nullable=False, unique=True)
     nr_telres = db.Column(db.String(11))
@@ -28,7 +29,8 @@ class Attendant(db.Model):
     dt_creation_time = db.Column(db.DateTime)
     id_clinic = db.Column(db.Integer, db.ForeignKey('clinics.id_clinic'))
 
-    clinic = relationship('Clinic', backref=backref('attendant', uselist=True), uselist=False)
+    clinic = relationship('Clinics', backref=backref(
+        'attendants', uselist=True), uselist=False)
 
     def __iter__(self):
         yield 'id_attendant', self.id_attendant

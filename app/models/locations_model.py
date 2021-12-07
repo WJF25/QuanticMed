@@ -27,3 +27,11 @@ class Locations(db.Model):
     room = relationship("Rooms", backref="locations", uselist=False)
     clinic = relationship("Clinics", uselist=False)
     therapists = relationship("Therapists", backref="locations", uselist=False)
+
+    def __iter__(self):
+        yield "id_location", self.id_location
+        yield "dt_start ", self.dt_start
+        yield "dt_end ", self.dt_end
+        yield "id_room ", self.id_room
+        yield "id_clinic ", self.id_clinic
+        yield "id_therapist ", self.id_therapist

@@ -16,7 +16,7 @@ class Customers(db.Model):
     nm_mother: str
     nm_father: str
     nr_work_permit: str
-    ds_adress: str
+    ds_address: str
     nr_phone_res: str
     nr_phone_ces: str
     ds_email: str
@@ -32,7 +32,7 @@ class Customers(db.Model):
     nm_mother = db.Column(db.String(50), nullable=True),
     nm_father = db.Column(db.String(50), nullable=True),
     nr_work_permit = db.Column(db.String(11), nullable=True, unique=True),
-    ds_adress = db.Column(db.String(50), nullable=False),
+    ds_address = db.Column(db.String(50), nullable=False),
     nr_phone_res = db.Column(db.String(11), nullable=True, unique=True),
     nr_phone_ces = db.Column(db.String(11), nullable=True, unique=True),
     ds_email = db.Column(db.String(50), nullable=True, unique=True)
@@ -53,7 +53,7 @@ class Customers(db.Model):
         yield 'nm_mother', self.nm_mother
         yield 'nm_father', self.nm_father
         yield 'nr_work_permit', self.nr_work_permit
-        yield 'ds_adress', self.ds_adress
+        yield 'ds_address', self.ds_address
         yield 'nr_phone_res', self.nr_phone_res
         yield 'nr_phone_ces', self.nr_phone_ces
         yield 'ds_email', self.ds_email
