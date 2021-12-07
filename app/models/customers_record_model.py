@@ -15,4 +15,5 @@ class CustomersRecord(db.Model):
         "customers.id_customer"), nullable=False)
     ds_comment = Column(String(1000), nullable=False)
 
-    customer = relationship("Customer", backref="record", uselist=False)
+    customer = relationship("Customer", backref=backref(
+        "record", uselist=False), uselist=False)
