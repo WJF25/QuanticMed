@@ -6,34 +6,37 @@ import sqlalchemy
 db: sqlalchemy = db
 
 
-class TherapistModel(db.Model):
-    id_medico: int
-    nm_medico: str
+@dataclass
+class Therapist(db.Model):
+    id_therapist: int
+    nm_therapist: str
     nr_cpf: str
     nr_crm: str
     ds_area: str
-    nm_usuario: str
-    ds_senha: str
+    nm_user: str
+    ds_password: str
     fl_admin: str
-    nr_acessos: int
+    nr_access: int
 
-    id_medico = db.Column(db.Integer, primary_key=True),
-    nm_medico = db.Column(db.String(50), nullable=False),
-    nr_cpf = db.Column(db.String(11), nullable=False),
-    nr_crm = db.Column(db.String(15), nullable=False),
+    __tablename__ = 'therapists'
+
+    id_therapist = db.Column(db.Integer, primary_key=True),
+    nm_therapist = db.Column(db.String(50), nullable=False),
+    nr_cpf = db.Column(db.String(11), nullable=False, unique=True),
+    nr_crm = db.Column(db.String(15), nullable=False, unique=True),
     ds_area = db.Column(db.String(20), nullable=False),
-    nm_usuario = db.Column(db.String(15), nullable=False),
-    ds_senha = db.Column(db.String(15), nullable=False),
+    nm_user = db.Column(db.String(15), nullable=False, unique=True),
+    ds_password = db.Column(db.String(15), nullable=False),
     fl_admin = db.Column(db.String(3), nullable=True),
-    nr_acessos = db.Column(db.Integer, nullable=True)
+    nr_access = db.Column(db.Integer, nullable=True, unique=True)
 
     def __iter__(self):
-        yield 'id_medico', self.id_medico
-        yield 'nm_medico', self.nm_medico
+        yield 'id_therapist', self.id_therapist
+        yield 'nm_therapist', self.nm_therapist
         yield 'nr_cpf', self.nr_cpf
         yield 'nr_crm', self.nr_crm
         yield 'ds_area', self.ds_area
-        yield 'nm_usuario', self.nm_usuario
-        yield 'ds_senha', self.ds_senha
+        yield 'nm_user', self.nm_user
+        yield 'ds_password', self.ds_password
         yield 'fl_admin', self.fl_admin
-        yield 'nr_acessos', self.nr_acessos
+        yield 'nr_access', self.nr_access
