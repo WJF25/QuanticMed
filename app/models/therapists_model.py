@@ -6,6 +6,7 @@ import sqlalchemy
 db: sqlalchemy = db
 
 
+@dataclass
 class TherapistModel(db.Model):
     id_medico: int
     nm_medico: str

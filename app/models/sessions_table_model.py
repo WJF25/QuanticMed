@@ -4,7 +4,7 @@ import sqlalchemy
 db: sqlalchemy = sqlalchemy
 
 session = db.Table(
-    id_consulta=db.Column(db.Integer),
+    id_consulta=db.Column(db.Integer, primary_key=True),
     id_paciente=db.Column(db.Integer, db.ForeignKey(
         'CustomerModel.id_paciente')),
     id_medico=db.Column(db.Integer, db.ForeignKey('TherapistModel.id_medico')),
