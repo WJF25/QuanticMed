@@ -10,10 +10,10 @@ class Rooms(db.Model):
 
     id_room: int
     nm_room: str
-    # backref para receber o nome da especialidade e locatioss
+    # specialty: Specialties importar model
 
     id_room = Column(Integer, primary_key=True)
     nm_room = Column(String(50), nullable=False)
-    id_specialty = Column(Integer, ForeignKey('specialties.id_specialty'))
+    id_specialty = Column(Integer, ForeignKey('Specialties.id_specialty'))
 
-    specialty = relationship("Specialties", uselist=False, backref="rooms")
+    specialty = relationship("Specialties", uselist=False)
