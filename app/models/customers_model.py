@@ -23,6 +23,8 @@ class Customers(db.Model):
     id_laudo: int
     dt_data_nasc: date
 
+    __tablename__ = 'customers'
+
     id_paciente = db.Column(db.Integer, primary_key=True),
     nm_paciente = db.Column(db.String(50), nullable=False),
     nr_cpf = db.Column(db.String(11), nullable=False),
