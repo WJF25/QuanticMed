@@ -22,13 +22,13 @@ class Therapist(db.Model):
 
     id_medic = db.Column(db.Integer, primary_key=True),
     nm_medic = db.Column(db.String(50), nullable=False),
-    nr_cpf = db.Column(db.String(11), nullable=False),
-    nr_crm = db.Column(db.String(15), nullable=False),
+    nr_cpf = db.Column(db.String(11), nullable=False, unique=True),
+    nr_crm = db.Column(db.String(15), nullable=False, unique=True),
     ds_area = db.Column(db.String(20), nullable=False),
-    nm_user = db.Column(db.String(15), nullable=False),
+    nm_user = db.Column(db.String(15), nullable=False, unique=True),
     ds_password = db.Column(db.String(15), nullable=False),
     fl_admin = db.Column(db.String(3), nullable=True),
-    nr_access = db.Column(db.Integer, nullable=True)
+    nr_access = db.Column(db.Integer, nullable=True, unique=True)
 
     def __iter__(self):
         yield 'id_medic', self.id_medic
