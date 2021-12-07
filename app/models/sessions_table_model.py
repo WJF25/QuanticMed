@@ -4,12 +4,12 @@ import sqlalchemy
 db: sqlalchemy = sqlalchemy
 
 sessions = db.Table(
-    id_appointment=db.Column(db.Integer, primary_key=True),
-    id_customer=db.Column(db.Integer, db.ForeignKey(
-        'CustomerModel.id_paciente')),
-    id_medic=db.Column(db.Integer, db.ForeignKey('TherapistModel.id_medico')),
-    dt_start=db.Column(db.DateTime, nullable=False),
-    dt_end=db.Column(db.DateTime, nullable=False),
+    id_consulta=db.Column(db.Integer),
+    id_paciente=db.Column(db.Integer, db.ForeignKey(
+        'Customer.id_customer')),
+    id_medico=db.Column(db.Integer, db.ForeignKey('Therapist.id_medic')),
+    dt_inicio=db.Column(db.DateTime, nullable=False),
+    dt_fim=db.Column(db.DateTime, nullable=False),
     ds_status=db.Column(db.String(15))
 
 )
