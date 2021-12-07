@@ -10,10 +10,14 @@ class Rooms(db.Model):
 
     id_room: int
     nm_room: str
-    # specialty: Specialties importar model
 
     id_room = Column(Integer, primary_key=True)
     nm_room = Column(String(50), nullable=False)
-    id_specialty = Column(Integer, ForeignKey('Specialties.id_specialty'))
+    id_specialty = Column(Integer, ForeignKey('specialties.id_specialty'))
 
     specialty = relationship("Specialties", uselist=False)
+
+    def __iter__(self):
+        yield 'id_room', self.id_room
+        yield 'nm_room', self.nm_room
+        yield 'id_specialty', self.id_specialty
