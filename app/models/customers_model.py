@@ -15,7 +15,7 @@ class CustomersModel(db.Model):
     nr_rg: str
     nm_mae: str
     nm_pai: str
-    nr_carteora: str
+    nr_carteira: str
     ds_endereco: str
     nr_telefone_res: str
     nr_telefone_ces: str
@@ -29,7 +29,7 @@ class CustomersModel(db.Model):
     nr_rg = db.Column(db.String(11), nullable=False),
     nm_mae = db.Column(db.String(50), nullable=True),
     nm_pai = db.Column(db.String(50), nullable=True),
-    nr_carteora = db.Column(db.String(11), nullable=True),
+    nr_carteira = db.Column(db.String(11), nullable=True),
     ds_endereco = db.Column(db.String(50), nullable=False),
     nr_telefone_res = db.Column(db.String(11), nullable=True),
     nr_telefone_ces = db.Column(db.String(11), nullable=True),
@@ -42,3 +42,18 @@ class CustomersModel(db.Model):
         secondary=sessions,
         backref='consultas'
     )
+
+    def __iter__(self):
+        yield 'id_paciente', self.id_paciente
+        yield 'nm_paciente', self.nm_paciente
+        yield 'nr_cpf', self.nr_cpf
+        yield 'nr_rg', self.nr_rg
+        yield 'nm_mae', self.nm_mae
+        yield 'nm_pai', self.nm_pai
+        yield 'nr_carteira', self.nr_carteira
+        yield 'ds_endereco', self.ds_endereco
+        yield 'nr_telefone_res', self.nr_telefone_res
+        yield 'nr_telefone_ces', self.nr_telefone_ces
+        yield 'ds_email', self.ds_email
+        yield 'id_laudo', self.id_laudo
+        yield 'dt_data_nasc', self.dt_data_nasc
