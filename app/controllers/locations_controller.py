@@ -12,7 +12,10 @@ def create_location():
     location = Locations(**data)
     session.add(location)
     session.commit()
-    #
+
+    response = dict(data)
+    del response['clinic'], response['therapists']
+    
     
     
     return jsonify(location)
