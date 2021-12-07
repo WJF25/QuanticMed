@@ -1,10 +1,11 @@
 from app.configs.database import db
 from dataclasses import dataclass
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from datetime import datetime
-
 from app.models.rooms_model import Rooms
+from app.models.therapists_model import Therapists
+import sqlalchemy
+db: sqlalchemy = db
 
 
 @dataclass
@@ -13,20 +14,19 @@ class Locations(db.Model):
 
     dt_start: datetime
     dt_end: datetime
-    room: Rooms
-    # clinic: Clinics importar clinica model
-    # therapist: Therapists importar model
+    room: Rooms    
+    therapists: Therapists
 
-    id_location = Column(Integer, primary_key=True)
-    dt_start = Column(DateTime)
-    dt_end = Column(DateTime)
-    id_room = Column(Integer, ForeignKey("rooms.id_room"))
-    id_clinic = Column(Integer, ForeignKey("clinics.id_clinic"))
-    id_therapist = Column(Integer, ForeignKey("therapists.id_therapist"))
+    id_location = db.Column(db.Integer, primary_key=True)
+    dt_start = db.Column(db.DateTime, nullable=False)
+    dt_end = db.Column(db.DateTime)
+    id_room = db.Column(db.Integer, db.ForeignKey("rooms.id_room"))
+    id_clinic = db.Column(db.Integer, db.ForeignKey("clinics.id_clinic"))
+    id_therapist = db.Column(db.Integer, db.ForeignKey("therapists.id_therapist"))
 
-    room = relationship("Rooms", backref="locations", uselist=False)
+    room = relationship("Rooms", backref=backref("locations", uselist=True), uselist=False)
     clinic = relationship("Clinics", uselist=False)
-    therapists = relationship("Therapists", backref="locations", uselist=False)
+    therapists = relationship("Therapists", backref=backref("locations", uselist=True), uselist=False)
 
     def __iter__(self):
         yield "id_location", self.id_location

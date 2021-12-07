@@ -1,4 +1,4 @@
-from app.models.sessions_table_model import sessions
+from app.models.sessions_table_model import sessions_table
 from datetime import datetime
 from sqlalchemy.orm import backref, relationship
 from app.configs.database import db
@@ -9,41 +9,37 @@ db: sqlalchemy = db
 
 @dataclass
 class Customers(db.Model):
-    id_customer: int
+    
     nm_customer: str
     nr_cpf: str
     nr_rg: str
     nm_mother: str
     nm_father: str
-    nr_work_permit: str
+    nr_healthcare: str
     ds_address: str
-    nr_phone_res: str
-    nr_phone_ces: str
-    ds_email: str
-    id_report: int
+    nr_telephone: str
+    nr_cellphone: str
+    ds_email: str    
     dt_birthdate: datetime
 
     __tablename__ = 'customers'
 
-    id_customer = db.Column(db.Integer, primary_key=True),
-    nm_customer = db.Column(db.String(50), nullable=False),
-    nr_cpf = db.Column(db.String(11), nullable=False, unique=True),
-    nr_rg = db.Column(db.String(11), nullable=False, unique=True),
-    nm_mother = db.Column(db.String(50), nullable=True),
-    nm_father = db.Column(db.String(50), nullable=True),
-    nr_work_permit = db.Column(db.String(11), nullable=True, unique=True),
-    ds_address = db.Column(db.String(50), nullable=False),
-    nr_phone_res = db.Column(db.String(11), nullable=True, unique=True),
-    nr_phone_ces = db.Column(db.String(11), nullable=True, unique=True),
-    ds_email = db.Column(db.String(50), nullable=True, unique=True)
-    id_report = db.Column(db.Integer, db.ForeignKey('reports.id_report')),
+    id_customer = db.Column(db.Integer, primary_key=True)
+    nm_customer = db.Column(db.String(50), nullable=False)
+    nr_cpf = db.Column(db.String(11), nullable=False, unique=True)
+    nr_rg = db.Column(db.String(11), unique=True)
+    nm_mother = db.Column(db.String(50))
+    nm_father = db.Column(db.String(50))
+    nr_healthcare = db.Column(db.String(30), unique=True)
+    ds_address = db.Column(db.String(50), nullable=False)
+    nr_telephone = db.Column(db.String(11))
+    nr_cellphone = db.Column(db.String(11))
+    ds_email = db.Column(db.String(50))
     dt_birthdate = db.Column(db.Date, nullable=False)
+    # id_report = db.Column(db.Integer, db.ForeignKey('reports.id_report')),
 
-    appointments = relationship(
-        'Therapist',
-        secondary=sessions,
-        backref=backref('customers', uselist=False)
-    )
+    appointments = relationship('Therapists', secondary=sessions_table, backref=backref('customers', uselist=False), uselist=True)   
+    
 
     def __iter__(self):
         yield 'id_customer', self.id_customer
@@ -52,10 +48,11 @@ class Customers(db.Model):
         yield 'nr_rg', self.nr_rg
         yield 'nm_mother', self.nm_mother
         yield 'nm_father', self.nm_father
-        yield 'nr_work_permit', self.nr_work_permit
+        yield 'nr_healthcare', self.nr_healthcare
         yield 'ds_address', self.ds_address
-        yield 'nr_phone_res', self.nr_phone_res
-        yield 'nr_phone_ces', self.nr_phone_ces
+        yield 'nr_telephone', self.nr_telephone
+        yield 'nr_cellphone', self.nr_cellphone
         yield 'ds_email', self.ds_email
-        yield 'id_report', self.id_report
         yield 'dt_birthdate', self.dt_birthdate
+        # yield 'id_report', self.id_report
+       

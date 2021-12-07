@@ -1,14 +1,11 @@
 from app.configs.database import db
-from dataclasses import dataclass
 import sqlalchemy
-db: sqlalchemy = sqlalchemy
+db: sqlalchemy = db
 
-sessions = db.Table(
-    id_consulta=db.Column(db.Integer),
-    id_paciente=db.Column(db.Integer, db.ForeignKey(
-        'customer.id_customer')),
-    id_medico=db.Column(db.Integer, db.ForeignKey('therapist.id_medic')),
-    dt_inicio=db.Column(db.DateTime, nullable=False),
-    dt_fim=db.Column(db.DateTime, nullable=False),
-    ds_status=db.Column(db.String(15))
-)
+sessions_table = db.Table('sessions_table',
+    db.Column('id_session', db.Integer, primary_key=True),
+    db.Column('id_customer', db.Integer, db.ForeignKey('customers.id_customer')),
+    db.Column('id_therapist', db.Integer, db.ForeignKey('therapists.id_therapist')),
+    db.Column('dt_start', db.DateTime, nullable=False),
+    db.Column('dt_end', db.DateTime),
+    db.Column('ds_status', db.String(15)))

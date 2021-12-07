@@ -5,7 +5,7 @@ db: sqlalchemy = db
 
 
 @dataclass
-class Specialty(db.Model):
+class Specialties(db.Model):
 
     nm_specialty: str
 
