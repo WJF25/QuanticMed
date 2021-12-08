@@ -7,6 +7,7 @@ db: sqlalchemy = db
 @dataclass
 class Specialties(db.Model):
 
+    id_specialty: int
     nm_specialty: str
 
     __tablename__ = 'specialties'
