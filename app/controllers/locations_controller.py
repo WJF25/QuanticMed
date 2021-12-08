@@ -15,7 +15,7 @@ def create_location():
     try:
         data = request.get_json()
         verify_keys(data, "location", "post")    
-        data['dt_end'] = data['dt_start'] + timedelta(hours=int(data.get('dt_end', 1)[2:])) if "day" not in data.get('dt_end') else data['dt_start'] + timedelta(days=int(data.get('dt_end', "day1")[3:]))
+        data['dt_end'] = datetime.strptime(data['dt_start'], "%d/%m/%Y %H:%M:%S") + timedelta(hours=int(data.get('dt_end', 1)[2:])) if "day" not in data.get('dt_end') else datetime.strptime(data['dt_start'], "%d/%m/%Y %H:%M:%S") + timedelta(days=int(data.get('dt_end', "day1")[3:]))
 
         location = Locations(**data)
 
@@ -56,16 +56,26 @@ def delete_location(location_id):
 def update_location(location_id):
     session = current_app.db.session
 
-    data = request.get_json()
+    data:dict = request.get_json()
 
     try:
         
         verify_keys(data, "location", "patch")
+        
+        if data.get("dt_end", None) is not None and data.get("dt_start", None) is not None:
+            data['dt_end'] = datetime.strptime(data['dt_start'], "%d/%m/%Y %H:%M:%S") + timedelta(hours=int(data.get('dt_end', 1)[2:])) if "day" not in data.get('dt_end') else datetime.strptime(data['dt_start'], "%d/%m/%Y %H:%M:%S")+ timedelta(days=int(data.get('dt_end', "day1")[3:]))
+        elif data.get("dt_start", None) is None and data.get("dt_end", None) is not None:
+            location_data = Locations.query.filter_by(id_location=location_id).first()
+            to_update = dict(location_data)
+            data['dt_end'] = to_update['dt_start'] + timedelta(hours=int(data.get('dt_end', 1)[2:])) if "day" not in data.get('dt_end') else to_update['dt_start']+ timedelta(days=int(data.get('dt_end', "day1")[3:]))
+        elif data.get("dt_start", None) is not None and data.get("dt_end", None) is None:
+            return{"erro": "Ao Atualizer a data de início, é preciso também alterar a data de término"}, 400
+
         location = Locations.query.filter_by(id_location=location_id).first()
         verify_none_values(location)
-        location.update(**data)
-        session.commit()
-        response = dict(location)
+        print(data)
+        Locations.query.filter_by(id_location=location_id).update(data)
+        session.commit()        
     except WrongKeyError as error:
         return jsonify({"Erro": error.value}), 400
     except (IntegrityError ) as int_error:
@@ -73,11 +83,14 @@ def update_location(location_id):
             return jsonify({"error": "Locação Já existe"}), 409
         if type(int_error.orig) == NotNullViolation:
             return jsonify({"erro": "Campo não pode ser nulo"}), 400
+        if type(int_error.orig) == ForeignKeyViolation:
+            return jsonify({"erro": "Chave(s) estrangeira(s) não existe(m)"}), 400
     except DataError as data_error:
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
     except  NoExistingValueError as error:
         return jsonify({"erro": error.value}), 404
-
+    
+    response = dict(location)
     del response['clinic'], response['therapist']
 
     return jsonify(response), 200
