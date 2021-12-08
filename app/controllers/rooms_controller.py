@@ -13,3 +13,17 @@ def create_rooms():
     session.commit()
 
     return jsonify(room)
+
+
+def delete_room(room_id):
+    session = current_app.db.session
+    
+    
+    room = Rooms.query.filter_by(id_room=room_id).first()
+    romm_response = dict(room)
+    if room is None:
+        return jsonify({"erro": "Sala não existe"}), 404
+    session.delete(room)
+    session.commit()
+    
+    return jsonify({"Sala Deletada":romm_response})
