@@ -1,6 +1,6 @@
 from app.configs.database import db
 from dataclasses import dataclass
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import backref, relationship, validates
 from datetime import datetime
 import sqlalchemy
 from app.models.clinics_model import Clinics
@@ -15,6 +15,7 @@ class Attendants(db.Model):
     nr_telephone: str
     nr_cellphone: str
     ds_password: str
+    ds_email: str
     dt_creation_time: str
     id_clinic: int
     clinic: Clinics
@@ -27,6 +28,7 @@ class Attendants(db.Model):
     nr_telephone = db.Column(db.String(11))
     nr_cellphone = db.Column(db.String(11))
     ds_password = db.Column(db.String(15))
+    ds_email = db.Column(db.String(40))
     dt_creation_time = db.Column(db.DateTime, default=datetime.now())
     id_clinic = db.Column(db.Integer, db.ForeignKey('clinics.id_clinic'))
 
@@ -40,6 +42,11 @@ class Attendants(db.Model):
         yield 'nr_telephone', self.nr_telephone
         yield 'nr_cellphone', self.nr_cellphone
         yield 'ds_password', self.ds_password
+        yield 'ds_email', self.ds_email
         yield 'dt_creation_time', self.dt_creation_time
         yield 'id_clinic', self.id_clinic
         yield 'clinic', self.clinic
+
+    @validates('nm_attendant')
+    def title_name(self, key, value):
+        return value.title()

@@ -1,6 +1,6 @@
 from app.configs.database import db
 from dataclasses import dataclass
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship, backref, validates
 from app.models.therapists_specialties_table_model import therapists_specialties_table
 import sqlalchemy
 
