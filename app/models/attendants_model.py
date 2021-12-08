@@ -10,6 +10,7 @@ db: sqlalchemy = db
 @dataclass
 class Attendants(db.Model):
 
+    id_attendant: str
     nm_attendant: str
     nr_cpf: str
     nr_telephone: str
