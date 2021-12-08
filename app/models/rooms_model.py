@@ -12,15 +12,19 @@ class Rooms(db.Model):
 
     id_room: int
     nm_room: str
+    ds_status: str
     specialty: Specialties
 
     id_room = db.Column(db.Integer, primary_key=True)
     nm_room = db.Column(db.String(50), nullable=False)
-    id_specialty = db.Column(db.Integer, db.ForeignKey('specialties.id_specialty'))
+    ds_status = db.Column(db.String(15), default="ativo")
+    id_specialty = db.Column(
+        db.Integer, db.ForeignKey('specialties.id_specialty'))
 
     specialty = relationship("Specialties", uselist=False)
 
     def __iter__(self):
         yield 'id_room', self.id_room
         yield 'nm_room', self.nm_room
+        yield 'ds_status', self.ds_status
         yield 'specialty', self.specialty
