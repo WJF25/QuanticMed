@@ -1,4 +1,4 @@
-from app.models.sessions_table_model import sessions_table
+from app.models.sessions_model import Sessions
 from datetime import datetime
 from sqlalchemy.orm import backref, relationship
 from app.configs.database import db
@@ -41,7 +41,7 @@ class Customers(db.Model):
 
     appointments = relationship(
         "Therapists",
-        secondary=sessions_table,
+        secondary="sessions",
         backref=backref("customers", uselist=False),
         uselist=True,
     )

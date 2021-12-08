@@ -29,7 +29,8 @@ def upgrade():
                         length=11), nullable=True),
                     sa.Column('ds_password', sa.String(
                         length=15), nullable=True),
-                    sa.Column('dt_creation_time', sa.DateTime, nullable=False),
+                    sa.Column('dt_creation_time',
+                              sa.DateTime(), nullable=False),
                     sa.Column('id_clinic', sa.Integer(), nullable=False),
                     sa.Column('ds_email', sa.String(40), nullable=True),
                     sa.PrimaryKeyConstraint('id_attendant'),

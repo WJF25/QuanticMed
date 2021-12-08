@@ -60,16 +60,10 @@ def update_location(location_id):
     data = request.get_json()
 
     try:
-        location = Locations.query.filter_by(id_location=location_id).first()
-        verify_none_values(location)
-    except  NoExistingValueError as error:
-        return jsonify({"erro": error.value}), 404
-    
-
-    try:
         
         verify_keys(data, "location", "patch")
-        
+        location = Locations.query.filter_by(id_location=location_id).first()
+        verify_none_values(location)
         location.update(**data)
         session.commit()
         response = dict(location)
@@ -82,6 +76,8 @@ def update_location(location_id):
             return jsonify({"erro": "Campo não pode ser nulo"}), 400
     except DataError as data_error:
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
+    except  NoExistingValueError as error:
+        return jsonify({"erro": error.value}), 404
 
     del response['clinic'], response['therapist']
 

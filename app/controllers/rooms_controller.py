@@ -49,13 +49,9 @@ def update_room(room_id):
     data: dict = request.get_json()
 
     try:
+        verify_keys(data, "room", "patch")
         current_room = Rooms.query.filter_by(id_room=room_id).first()
         verify_none_values(current_room)
-    except NoExistingValueError as error:
-        return jsonify({"erro": error.value}), 404
-
-    try:
-        verify_keys(data, "room", "patch")
         data["nm_room"] = data["nm_room"].title()
         updated_room = session.query(Rooms).filter_by(id_room=room_id).update(data)
         session.commit()
@@ -63,6 +59,8 @@ def update_room(room_id):
         return jsonify({"Erro": error.value}), 400
     except DataError as data_error:
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
+    except NoExistingValueError as error:
+        return jsonify({"erro": error.value}), 404
 
     response = Rooms.query.get(room_id)
 
