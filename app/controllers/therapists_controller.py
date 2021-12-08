@@ -19,7 +19,7 @@ def create_therapist():
         specialties_data = data.pop('ds_specialties')
 
         is_numeric_data(
-            data['nr_cpf'])
+            data['nr_cpf', 'nr_cellphone'])
         password_min_length(data['ds_password'])
 
         inserted_data = Therapists(**data)
@@ -46,7 +46,7 @@ def create_therapist():
         return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
-            return {"error": "Therapist name already exists"}, 409
+            return {"error": "Cpf, crm ou username já cadastrados"}, 409
         return str(e), 404
 
 
@@ -60,7 +60,7 @@ def update_therapist(id):
 
         filtered_data = Therapists.query.get(id)
         if filtered_data is None:
-            return {"error": "Therapist not found"}
+            return {"error": "Terapeuta não encontrado"}
 
         for key, value in data.items():
             setattr(filtered_data, key, value)
@@ -69,6 +69,19 @@ def update_therapist(id):
         session.commit()
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
-            return {"error": "Therapist name already exists"}, 409
+            return {"error": "Cpf, crm ou username já cadastrados"}, 409
 
     return jsonify(filtered_data), 200
+
+
+def delete_therapist(id):
+    session = current_app.db.session
+
+    filtered_data = Therapists.query.get(id)
+    if filtered_data is None:
+        return {"error": "Terapeuta não encontrado"}
+
+    session.delete(filtered_data)
+    session.commit()
+
+    return '', 204
