@@ -1,6 +1,6 @@
 from app.configs.database import db
 from dataclasses import dataclass
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship, backref, validates
 from app.models.therapists_specialties_table_model import therapists_specialties_table
 import sqlalchemy
 
@@ -12,11 +12,10 @@ class Therapists(db.Model):
     id_therapist: int
     nm_therapist: str
     nr_cpf: str
-    nr_crm: str    
+    nr_crm: str
     nm_user: str
     ds_password: str
     specialties: list
-    
 
     __tablename__ = 'therapists'
 
@@ -27,16 +26,18 @@ class Therapists(db.Model):
     nm_user = db.Column(db.String(15), unique=True)
     ds_password = db.Column(db.String(15))
 
-    specialties = relationship('Specialties', secondary=therapists_specialties_table, backref=backref('therapists', uselist=True), uselist=True)
-    
-
+    specialties = relationship('Specialties', secondary=therapists_specialties_table, backref=backref(
+        'therapists', uselist=True), uselist=True)
 
     def __iter__(self):
         yield 'id_therapist', self.id_therapist
         yield 'nm_therapist', self.nm_therapist
         yield 'nr_cpf', self.nr_cpf
-        yield 'nr_crm', self.nr_crm        
+        yield 'nr_crm', self.nr_crm
         yield 'nm_user', self.nm_user
         yield 'ds_password', self.ds_password
-        yield 'specialties', self.specialties      
-        
+        yield 'specialties', self.specialties
+
+    @validates('nm_therapist')
+    def title_name(self, key, value):
+        return value.title()
