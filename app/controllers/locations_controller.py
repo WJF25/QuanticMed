@@ -3,7 +3,8 @@ from app.exc.excessoes import WrongKeyError
 from app.models.locations_model import Locations
 from app.controllers.verifications import verify_keys
 from psycopg2.errors import UniqueViolation,NotNullViolation
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, DataError
+from datetime import datetime
 import sqlalchemy 
 
 
@@ -14,7 +15,11 @@ def create_location():
     try:
         data = request.get_json()
         verify_keys(data, "location", "post")
+        data['dt_start'] = datetime.now()
+        
+
         location = Locations(**data)
+
         session.add(location)
         session.commit()
         
@@ -27,6 +32,8 @@ def create_location():
             return jsonify({"error": "Locação Já existe"}), 409
         if type(int_error.orig) == NotNullViolation:
             return jsonify({"erro": "Campo não pode ser nulo"}), 400
+    except DataError as data_error:
+        return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
 
     del response['clinic'], response['therapist']
 
