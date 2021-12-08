@@ -60,14 +60,3 @@ class Customers(db.Model):
         yield "ds_email", self.ds_email
         yield "dt_birthdate", self.dt_birthdate
         # yield 'id_report', self.id_report
-
-    def delete_invalid_keys(request_keys, valid_keys, data_request):
-        for i in request_keys:
-            if i not in valid_keys:
-                del data_request[i]
-
-    @staticmethod
-    def get_missing_keys(request_keys: list, valid_keys: list, missing_keys: list):
-        for i in valid_keys:
-            if i not in request_keys:
-                missing_keys.append(i)
