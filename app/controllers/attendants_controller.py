@@ -4,7 +4,7 @@ import psycopg2
 from sqlalchemy import and_, or_
 from app.models.attendants_model import Attendants
 from sqlalchemy.exc import IntegrityError
-from psycopg2.errorcodes import UNIQUE_VIOLATION
+from psycopg2.errorcodes import UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
 from app.controllers.verifications import verify_keys, is_numeric_data
 from app.exc.excessoes import NumericError, PasswordMinLengthError, WrongKeyError
 
@@ -36,9 +36,51 @@ def create_attendant():
         return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
-            return {"error": "task name already exists"}, 409
-        return str(e), 404
+            return {"error": "Cpf já cadastrado"}, 409
+        if e.orig.pgcode == FOREIGN_KEY_VIOLATION:
+            return {"error": "Clínica não cadastrada"}, 400
 
 
-# TODO: INTEGRAR COM AS CLINICAS DEVIDO A FK
-# FIXME: VALOR DEFAULT DO creating_time
+def update_attendant(id):
+    session = current_app.db.session
+
+    data = request.get_json()
+
+    filtered_data = Attendants.query.get(id)
+    if filtered_data is None:
+        return {"erro": "Recepcionista não existe"}
+
+    try:
+        verify_keys(data, "attendant", "patch")
+
+        for key, value in data.items():
+            setattr(filtered_data, key, value)
+
+        session.add(filtered_data)
+        session.commit()
+    except WrongKeyError as error:
+        return jsonify({"erro": error.value}), 400
+    except NumericError as error:
+        return jsonify(error.value), 400
+    except PasswordMinLengthError as error:
+        return jsonify(error.value), 400
+    except IntegrityError as e:
+        if e.orig.pgcode == UNIQUE_VIOLATION:
+            return {"erro": "Cpf já cadastrado"}, 409
+        if e.orig.pgcode == FOREIGN_KEY_VIOLATION:
+            return {"erro": "Clínica não cadastrada"}, 400
+
+    return jsonify(filtered_data), 200
+
+
+def delete_attendant(id):
+    session = current_app.db.session
+
+    filtered_data = Attendants.query.get(id)
+    if filtered_data is None:
+        return {"error": "Recepcionista não encontrado"}
+
+    session.delete(filtered_data)
+    session.commit()
+
+    return '', 204
