@@ -41,7 +41,7 @@ class Customers(db.Model):
 
     appointments = relationship(
         "Therapists",
-        secondary=Sessions,
+        secondary="sessions",
         backref=backref("customers", uselist=False),
         uselist=True,
     )
