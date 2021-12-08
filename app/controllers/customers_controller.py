@@ -19,7 +19,7 @@ def create_customer():
         "ds_email",
         "dt_birthdate",
     ]
-    customer_data = request.get_json()
+    customer_data: dict = request.get_json()
     request_keys = list(customer_data.keys())
     session = current_app.db.session
     Customers.delete_invalid_keys(request_keys, valid_keys, customer_data)
@@ -41,5 +41,23 @@ def create_customer():
             }, 400
     return {"msg": "I'm sorry, we did not understand your request"}
 
-    def update_customer_by_id(customer_id):
-        ...
+
+def update_customer_by_id(customer_id):
+    valid_keys = [
+        "nm_customer",
+        "nr_cpf",
+        "nr_rg",
+        "nm_mother",
+        "nm_father",
+        "nr_healthcare",
+        "ds_address",
+        "nr_telephone",
+        "nr_cellphone",
+        "ds_email",
+        "dt_birthdate",
+    ]
+    session = current_app.db.session
+    data_to_update: dict = request.get_json()
+    request_keys = list(data_to_update.keys())
+    Customers.delete_invalid_keys(request_keys, valid_keys, data_to_update)
+    new_keys = list(data_to_update.keys())
