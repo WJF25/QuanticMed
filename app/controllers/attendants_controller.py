@@ -71,3 +71,16 @@ def update_attendant(id):
             return {"erro": "Clínica não cadastrada"}, 400
 
     return jsonify(filtered_data), 200
+
+
+def delete_attendant(id):
+    session = current_app.db.session
+
+    filtered_data = Attendants.query.get(id)
+    if filtered_data is None:
+        return {"error": "Recepcionista não encontrado"}
+
+    session.delete(filtered_data)
+    session.commit()
+
+    return '', 204
