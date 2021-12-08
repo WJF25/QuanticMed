@@ -1,6 +1,7 @@
 from app.configs.database import db
 from dataclasses import dataclass
 from sqlalchemy.orm import relationship
+from app.models.specialties_model import Specialties
 import sqlalchemy
 db: sqlalchemy = db
 
@@ -11,6 +12,7 @@ class Rooms(db.Model):
 
     id_room: int
     nm_room: str
+    specialty: Specialties
 
     id_room = db.Column(db.Integer, primary_key=True)
     nm_room = db.Column(db.String(50), nullable=False)
