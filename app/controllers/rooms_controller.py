@@ -1,9 +1,9 @@
 from flask import request, jsonify, current_app
-from app.controllers.verifications import verify_keys
-from app.exc.excessoes import WrongKeyError
+from app.controllers.verifications import verify_keys, verify_none_values
+from app.exc.excessoes import WrongKeyError, NoExistingValueError
 from app.models.rooms_model import Rooms
 from sqlalchemy.exc import DataError
-import sqlalchemy 
+import sqlalchemy
 import psycopg2
 
 
@@ -48,9 +48,11 @@ def update_room(room_id):
 
     data: dict = request.get_json()
 
-    current_room = Rooms.query.filter_by(id_room=room_id).first()
-    if current_room is None:
-        return jsonify({"erro": "Sala não existe"}), 404
+    try:
+        current_room = Rooms.query.filter_by(id_room=room_id).first()
+        verify_none_values(current_room)
+    except NoExistingValueError as error:
+        return jsonify({"erro": error.value}), 404
 
     try:
         verify_keys(data, "room", "patch")

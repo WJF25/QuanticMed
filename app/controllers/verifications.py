@@ -1,4 +1,5 @@
 from app.exc.excessoes import WrongKeyError
+from app.exc.excessoes import NoExistingValueError
 
 def verify_keys(kwargs, option, method="post"):
     
@@ -18,6 +19,9 @@ def verify_keys(kwargs, option, method="post"):
             error = list(keys - options[option] )
             
             raise WrongKeyError({"Chaves_erradas":error, "Chaves Disponíveis":list(options[option])})
+        else:
+            error = list(keys - options[option] )
+            raise WrongKeyError({"Chaves_erradas":error, "Chaves Disponíveis":list(options[option])})
         
                     
     else:
@@ -25,8 +29,16 @@ def verify_keys(kwargs, option, method="post"):
         if not keys.issubset(options[option]):
             error = list(keys - options[option])
             raise WrongKeyError({"Chaves_erradas":error, "Chaves Disponíveis":list(options[option])})
-        
+        elif options[option].issubset(keys):
+            error = list(keys - options[option] )
+            raise WrongKeyError({"Chaves_erradas":error, "Chaves Disponíveis":list(options[option])})            
+
         else:
-            return True;
+            return True
+
+
+def verify_none_values(value):
+    if value == None:
+        raise NoExistingValueError({"Erro": "Informação não existe no banco de dados"})
 
 
