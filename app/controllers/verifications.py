@@ -1,5 +1,7 @@
-from app.exc.excessoes import NumericError, PasswordMinLengthError, WrongKeyError
-from ipdb import set_trace
+from app.exc.excessoes import WrongKeyError
+from app.exc.excessoes import NoExistingValueError
+from app.exc.excessoes import NumericError, PasswordMinLengthError
+
 
 
 def verify_keys(kwargs, option, method="post"):
@@ -18,20 +20,29 @@ def verify_keys(kwargs, option, method="post"):
         if len(keys) == 0:
             raise WrongKeyError({"Chaves Disponíveis": list(options[option])})
         elif not options[option].issubset(keys):
-            error = list(keys - options[option])
-
-            raise WrongKeyError(
-                {"Chaves_erradas": error, "Chaves Disponíveis": list(options[option])})
-
+            error = list(keys - options[option] ) if list(keys - options[option] ) != [] else list(options[option] - keys)
+            
+            raise WrongKeyError({"Chaves_erradas":error, "Chaves Disponíveis":list(options[option])})
+        elif not keys.issubset(options[option]):
+            error = list(keys - options[option] )
+            raise WrongKeyError({"Chaves_erradas":error, "Chaves Disponíveis":list(options[option])})
+        
+                    
     else:
 
         if not keys.issubset(options[option]):
             error = list(keys - options[option])
-            raise WrongKeyError(
-                {"Chaves_erradas": error, "Chaves Disponíveis": list(options[option])})
+            raise WrongKeyError({"Chaves_erradas":error, "Chaves Disponíveis":list(options[option])})
+                   
 
         else:
             return True
+
+
+def verify_none_values(value):
+    
+    if value == None:
+        raise NoExistingValueError({"Erro": "Informação não existe no banco de dados"})
 
 
 def is_numeric_data(*data):

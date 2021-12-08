@@ -36,8 +36,7 @@ def upgrade():
     op.alter_column('attendants', 'id_clinic',
                existing_type=sa.INTEGER(),
                nullable=True)
-    op.create_unique_constraint(None, 'attendants', ['nr_cpf'])
-    op.drop_column('attendants', 'ds_email')
+    op.create_unique_constraint(None, 'attendants', ['nr_cpf'])    
     op.add_column('rooms', sa.Column('ds_status', sa.String(length=15), nullable=True))
     op.add_column('therapists', sa.Column('nr_cellphone', sa.String(length=11), nullable=True))
     op.add_column('therapists', sa.Column('ds_status', sa.String(length=15), nullable=True))
