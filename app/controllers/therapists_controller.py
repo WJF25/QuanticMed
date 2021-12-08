@@ -48,3 +48,27 @@ def create_therapist():
         if e.orig.pgcode == UNIQUE_VIOLATION:
             return {"error": "Therapist name already exists"}, 409
         return str(e), 404
+
+
+def update_therapist(id):
+    session = current_app.db.session
+
+    data = request.get_json()
+
+    try:
+        verify_keys(data, "therapist", "patch")
+
+        filtered_data = Therapists.query.get(id)
+        if filtered_data is None:
+            return {"error": "Therapist not found"}
+
+        for key, value in data.items():
+            setattr(filtered_data, key, value)
+
+        session.add(filtered_data)
+        session.commit()
+    except IntegrityError as e:
+        if e.orig.pgcode == UNIQUE_VIOLATION:
+            return {"error": "Therapist name already exists"}, 409
+
+    return jsonify(filtered_data), 200
