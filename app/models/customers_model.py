@@ -4,12 +4,13 @@ from sqlalchemy.orm import backref, relationship
 from app.configs.database import db
 from dataclasses import dataclass
 import sqlalchemy
+
 db: sqlalchemy = db
 
 
 @dataclass
 class Customers(db.Model):
-    
+
     nm_customer: str
     nr_cpf: str
     nr_rg: str
@@ -19,10 +20,10 @@ class Customers(db.Model):
     ds_address: str
     nr_telephone: str
     nr_cellphone: str
-    ds_email: str    
+    ds_email: str
     dt_birthdate: datetime
 
-    __tablename__ = 'customers'
+    __tablename__ = "customers"
 
     id_customer = db.Column(db.Integer, primary_key=True)
     nm_customer = db.Column(db.String(50), nullable=False)
@@ -38,21 +39,35 @@ class Customers(db.Model):
     dt_birthdate = db.Column(db.Date, nullable=False)
     # id_report = db.Column(db.Integer, db.ForeignKey('reports.id_report')),
 
-    appointments = relationship('Therapists', secondary=sessions_table, backref=backref('customers', uselist=False), uselist=True)   
-    
+    appointments = relationship(
+        "Therapists",
+        secondary=sessions_table,
+        backref=backref("customers", uselist=False),
+        uselist=True,
+    )
 
     def __iter__(self):
-        yield 'id_customer', self.id_customer
-        yield 'nm_customer', self.nm_customer
-        yield 'nr_cpf', self.nr_cpf
-        yield 'nr_rg', self.nr_rg
-        yield 'nm_mother', self.nm_mother
-        yield 'nm_father', self.nm_father
-        yield 'nr_healthcare', self.nr_healthcare
-        yield 'ds_address', self.ds_address
-        yield 'nr_telephone', self.nr_telephone
-        yield 'nr_cellphone', self.nr_cellphone
-        yield 'ds_email', self.ds_email
-        yield 'dt_birthdate', self.dt_birthdate
+        yield "id_customer", self.id_customer
+        yield "nm_customer", self.nm_customer
+        yield "nr_cpf", self.nr_cpf
+        yield "nr_rg", self.nr_rg
+        yield "nm_mother", self.nm_mother
+        yield "nm_father", self.nm_father
+        yield "nr_healthcare", self.nr_healthcare
+        yield "ds_address", self.ds_address
+        yield "nr_telephone", self.nr_telephone
+        yield "nr_cellphone", self.nr_cellphone
+        yield "ds_email", self.ds_email
+        yield "dt_birthdate", self.dt_birthdate
         # yield 'id_report', self.id_report
-       
+
+    def delete_invalid_keys(request_keys, valid_keys, data_request):
+        for i in request_keys:
+            if i not in valid_keys:
+                del data_request[i]
+
+    @staticmethod
+    def get_missing_keys(request_keys: list, valid_keys: list, missing_keys: list):
+        for i in valid_keys:
+            if i not in request_keys:
+                missing_keys.append(i)
