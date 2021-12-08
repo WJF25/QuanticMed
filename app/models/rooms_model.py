@@ -23,4 +23,4 @@ class Rooms(db.Model):
     def __iter__(self):
         yield 'id_room', self.id_room
         yield 'nm_room', self.nm_room
-        yield 'id_specialty', self.id_specialty
+        yield 'specialty', self.specialty

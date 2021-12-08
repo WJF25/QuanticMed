@@ -1,6 +1,6 @@
 from app.configs.database import db
 from dataclasses import dataclass
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import eagerload, relationship, backref
 from datetime import datetime
 from app.models.rooms_model import Rooms
 from app.models.therapists_model import Therapists
@@ -15,7 +15,7 @@ class Locations(db.Model):
     id_location: int
     dt_start: datetime
     dt_end: datetime
-    room: Rooms 
+    room: list 
     clinic: Clinics
     therapists: Therapists
 
@@ -32,8 +32,8 @@ class Locations(db.Model):
 
     def __iter__(self):
         yield "id_location", self.id_location
-        yield "dt_start ", self.dt_start
-        yield "dt_end ", self.dt_end
-        yield "id_room ", self.id_room
-        yield "id_clinic ", self.id_clinic
-        yield "id_therapist ", self.id_therapist
+        yield "dt_start", self.dt_start
+        yield "dt_end", self.dt_end
+        yield "room", self.room
+        yield "clinic", self.clinic
+        yield "therapist", self.therapists
