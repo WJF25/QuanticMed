@@ -8,7 +8,7 @@ def verify_keys(kwargs, option, method="post"):
 
     options = {
         "location": {'dt_start', 'dt_end', 'id_room', 'id_clinic', 'id_therapist'},
-        "room": {'nm_room', 'id_specialty'},
+        "room": {'nm_room', 'id_specialty', 'ds_status'},
         "attendant": {'nm_attendant', 'nr_cpf', 'nr_telephone', 'nr_cellphone', 'ds_password', 'id_clinic', 'ds_email'},
         "customer": {'nm_customer', 'nr_cpf', 'nr_rg', 'nm_mother', 'nm_father', 'nr_healthcare', 'ds_address', 'nr_telephone', "nr_cellphone", 'ds_email', 'dt_birthdate'},
         "therapist": {'nm_therapist', 'nr_cpf', 'nr_crm', 'nm_user', 'ds_password', 'ds_specialties', 'nr_cellphone'}
@@ -29,6 +29,8 @@ def verify_keys(kwargs, option, method="post"):
         
                     
     else:
+        if len(keys) == 0:
+            raise WrongKeyError({"Chaves Disponíveis": list(options[option])})
 
         if not keys.issubset(options[option]):
             error = list(keys - options[option])
