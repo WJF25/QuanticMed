@@ -18,12 +18,12 @@ def create_therapist():
 
         specialties_data = data.pop('ds_specialties')
 
-        is_numeric_data(
-            data['nr_cpf', 'nr_cellphone'])
-        password_min_length(data['ds_password'])
-
         inserted_data = Therapists(**data)
 
+        """[comment]
+            The code below lists and serializes the categories that a therapist has.
+            Add a new category if it doesn't exist
+        """
         for specialty in specialties_data:
             filtered_data = Specialties.query.filter_by(
                 nm_specialty=specialty['nm_specialty']).first()
@@ -85,3 +85,35 @@ def delete_therapist(id):
     session.commit()
 
     return '', 204
+
+
+def get_all_therapists():
+
+    page = request.args.get('page', 1)
+    per_page = request.args.get('per_page', 5)
+    order = request.args.get('order_by', 'id_therapist')
+    direction = request.args.get('dir', False)
+
+    filtered_data = Therapists.query.order_by(getattr(Therapists, order)).paginate(
+        int(page), int(per_page), error_out=False).items
+
+    """[comment]
+        The following code lists the Therapists object's to allow the function reverse
+    """
+    response = list()
+    for item in filtered_data:
+        therapist_data = dict(item)
+        response.append(therapist_data)
+
+    if direction:
+        response.reverse()
+
+    return jsonify(response), 200
+
+
+def get_therapist_by_id(id):
+    filtered_data = Therapists.query.get(id)
+    if filtered_data is None:
+        return {"erro": "Recepcionista não encontrado"}
+
+    return jsonify(filtered_data), 200
