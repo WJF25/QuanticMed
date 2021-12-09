@@ -1,4 +1,4 @@
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, render_template
 import sqlalchemy
 import psycopg2
 from sqlalchemy import and_, or_
@@ -9,7 +9,6 @@ from app.controllers.verifications import verify_keys, is_numeric_data
 from app.exc.excessoes import NumericError, PasswordMinLengthError, WrongKeyError
 
 
-
 def create_attendant():
 
     session = current_app.db.session
@@ -18,8 +17,6 @@ def create_attendant():
         data = request.get_json()
 
         verify_keys(data, "attendant", "post")
-        is_numeric_data(
-            data['nr_cpf'], data['nr_cellphone'], data['nr_telephone'])
 
         inserted_data = Attendants(**data)
 
@@ -48,7 +45,7 @@ def update_attendant(id):
 
     filtered_data = Attendants.query.get(id)
     if filtered_data is None:
-        return {"erro": "Recepcionista não existe"}
+        return {"erro": "Recepcionista não encontrado"}
 
     try:
         verify_keys(data, "attendant", "patch")
@@ -61,8 +58,6 @@ def update_attendant(id):
     except WrongKeyError as error:
         return jsonify({"erro": error.value}), 400
     except NumericError as error:
-        return jsonify(error.value), 400
-    except PasswordMinLengthError as error:
         return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
@@ -84,3 +79,47 @@ def delete_attendant(id):
     session.commit()
 
     return '', 204
+
+
+def get_all_attendants():
+
+    page = request.args.get('page', 1)
+    per_page = request.args.get('per_page', 5)
+    order = request.args.get('order_by', 'id_attendant')
+    direction = request.args.get('dir', False)
+
+    filtered_data = Attendants.query.order_by(getattr(Attendants, order)).paginate(
+        int(page), int(per_page), error_out=False).items
+
+    """[comment]
+        The code below is responsible for serialization the 'clinic' attribute  that is a 'Clinics' object, resulting only 'id_clinic' serialization 
+    """
+    response = list()
+    for item in filtered_data:
+        attendant_data = dict(item)
+        clinic_data = attendant_data["clinic"]
+        del attendant_data["clinic"]
+        attendant_data["id_clinic"] = clinic_data.id_clinic
+        response.append(attendant_data)
+
+    if direction:
+        response.reverse()
+
+    return jsonify(response), 200
+
+
+def get_attendant_by_id(id):
+
+    filtered_data = Attendants.query.get(id)
+    if filtered_data is None:
+        return {"erro": "Recepcionista não encontrado"}
+
+    """[comment]
+        Understand the code below checking the explanation at comment in get_all_attendants function 
+    """
+    response = dict(filtered_data)
+    clinic_data = response["clinic"]
+    del response["clinic"]
+    response["id_clinic"] = clinic_data.id_clinic
+
+    return jsonify(response), 200

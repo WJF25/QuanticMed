@@ -4,6 +4,7 @@ from sqlalchemy.orm import backref, relationship, validates
 from datetime import datetime
 import sqlalchemy
 from app.models.clinics_model import Clinics
+from app.exc.excessoes import NumericError
 db: sqlalchemy = db
 
 
@@ -51,3 +52,14 @@ class Attendants(db.Model):
     @validates('nm_attendant')
     def title_name(self, key, value):
         return value.title()
+
+    @validates('de_email')
+    def title_name(self, key, value):
+        return value.lower()
+
+    @validates('nr_cpf', 'nr_cellphone', 'nr_telephone')
+    def title_name(self, key, value):
+        if not value.isnumeric():
+            raise NumericError(
+                {"message": "As chaves nr_cpf, nr_cellphone, nr_telephone devem ser numéricas", "error": f"O valor {value} não é numérico"})
+        return value
