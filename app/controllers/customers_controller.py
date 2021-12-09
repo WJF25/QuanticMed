@@ -1,7 +1,7 @@
 from flask import request, jsonify, current_app
-from psycopg2.errors import UniqueViolation, NotNullViolation
+from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import IntegrityError
-from app.exc.customers_errors import CustomerInvalidCpf, CustomerNotFoundError
+from app.exc.customers_errors import CustomerNotFoundError
 from app.exc.excessoes import NumericError, WrongKeyError
 from app.models.customers_model import Customers
 from app.controllers.verifications import verify_keys, is_numeric_data
@@ -26,8 +26,6 @@ def create_customer():
         return jsonify(customer), 201
     except NumericError as E:
         return jsonify(E.value), 400
-    except CustomerInvalidCpf as E:
-        return jsonify(E.value)
     except IntegrityError as E:
         if isinstance(E.orig, UniqueViolation):
             return {"erro": "cliente já cadastrado no banco de dados"}, 409
@@ -76,3 +74,18 @@ def delete_customer_by_id(id_customer):
         return "", 204
     except CustomerNotFoundError as E:
         return jsonify(E.value), 404
+
+
+def get_customers():
+    customers = Customers.query.all()
+    print(len(customers))
+    if len(customers) < 1:
+        return {"erro": "Não achamos nada no nosso banco de dados"}, 404
+    return jsonify(customers), 200
+
+
+def get_customer_by_id(id_customer):
+    customer = Customers.query.filter_by(id_customer=id_customer).one_or_none()
+    if not customer:
+        return {"erro": "Não achamos nada no nosso banco de dados"}, 200
+    return jsonify(customer), 404

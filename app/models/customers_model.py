@@ -1,6 +1,3 @@
-from app.controllers.verifications import is_numeric_data
-from app.exc.customers_errors import CustomerInvalidCpf
-from app.models.sessions_model import Sessions
 from datetime import datetime
 from sqlalchemy.orm import backref, relationship, validates
 from app.configs.database import db
@@ -13,6 +10,7 @@ db: sqlalchemy = db
 @dataclass
 class Customers(db.Model):
 
+    id_customer: int
     nm_customer: str
     nr_cpf: str
     nr_rg: str
