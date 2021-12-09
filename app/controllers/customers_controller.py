@@ -32,8 +32,8 @@ def create_customer():
         if isinstance(E.orig, UniqueViolation):
             return {"erro": "cliente já cadastrado no banco de dados"}, 409
     except WrongKeyError as E:
-        return jsonify({"Erro": E.value})
-    return {"msg": "I'm sorry, we did not understand your request"}, 400
+        return jsonify({"Erro": E.value}), 400
+    return {"erro": "Desculpe, nós não entendemos sua requisição"}, 400
 
 
 def update_customer_by_id(id_customer):
@@ -57,7 +57,7 @@ def update_customer_by_id(id_customer):
     except CustomerNotFoundError as E:
         return jsonify(E.value), 404
     except WrongKeyError as E:
-        return jsonify({"erro": E.value})
+        return jsonify({"erro": E.value}), 400
     except IntegrityError as E:
         if isinstance(E.orig, UniqueViolation):
             return {"erro": "cliente já cadastrado no banco de dados"}, 409
