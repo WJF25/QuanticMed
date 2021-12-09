@@ -2,9 +2,9 @@ from flask import request, jsonify, current_app
 from app.controllers.verifications import verify_keys, verify_none_values
 from app.exc.excessoes import WrongKeyError, NoExistingValueError
 from app.models.rooms_model import Rooms
-from sqlalchemy.exc import DataError
+from sqlalchemy.exc import DataError, IntegrityError
 import sqlalchemy
-import psycopg2
+from psycopg2.errors import ForeignKeyViolation
 
 
 
@@ -24,8 +24,12 @@ def create_rooms():
         return jsonify({"Erro": error.value}), 400
     except DataError as data_error:
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
+    except IntegrityError as int_error:
+        if type(int_error.orig) == ForeignKeyViolation:
+            return jsonify({"erro": "Chave(s) estrangeira(s) não existe(m)"}), 400
+    
 
-    return jsonify(room)
+    return jsonify(room), 201
 
 
 def delete_room(room_id):
@@ -40,7 +44,7 @@ def delete_room(room_id):
     session.delete(room)
     session.commit()
     
-    return jsonify({"Sala Deletada":romm_response})
+    return jsonify({"Sala Deletada":romm_response}),200
 
 
 def update_room(room_id):
@@ -82,7 +86,7 @@ def get_rooms():
     rooms = session.query(Rooms).paginate(int(param.get('page',1)),int(param.get('per_page',10)), max_per_page=20).items
     response = [dict(room) for room in rooms]
 
-    return jsonify(response)
+    return jsonify(response), 200
 
     
 
@@ -95,7 +99,7 @@ def get_room_by_id(room_id):
     if room is None:
         return jsonify({"erro": "Sala não existe"}), 404
 
-    return jsonify(room)
+    return jsonify(room), 200
 
 
 def get_room_by_status(room_status):
@@ -105,4 +109,4 @@ def get_room_by_status(room_status):
     if room is None:
         return jsonify({"erro": "Sala não existe"}), 404
 
-    return jsonify(room)
+    return jsonify(room), 200
