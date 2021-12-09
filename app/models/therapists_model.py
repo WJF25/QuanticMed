@@ -1,6 +1,7 @@
 from app.configs.database import db
 from dataclasses import dataclass
 from sqlalchemy.orm import relationship, backref, validates
+from app.exc.excessoes import NumericError
 from app.models.therapists_specialties_table_model import therapists_specialties_table
 import sqlalchemy
 
@@ -43,3 +44,14 @@ class Therapists(db.Model):
         yield 'ds_password', self.ds_password
         yield 'ds_status', self.ds_status
         yield 'specialties', self.specialties
+
+    @validates('nm_attendant')
+    def title_name(self, key, value):
+        return value.title()
+
+    @validates('nr_cpf', 'nr_cellphone')
+    def title_name(self, key, value):
+        if not value.isnumeric():
+            raise NumericError(
+                {"message": "As chaves nr_cpf, nr_cellphone, nr_telephone devem ser numericas", "error": f"O valor {value} não é numérico"})
+        return value
