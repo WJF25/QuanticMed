@@ -1,6 +1,6 @@
 from app.configs.database import db
 from dataclasses import dataclass
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 from app.models.specialties_model import Specialties
 import sqlalchemy
 db: sqlalchemy = db
@@ -28,3 +28,8 @@ class Rooms(db.Model):
         yield 'nm_room', self.nm_room
         yield 'ds_status', self.ds_status
         yield 'specialty', self.specialty
+
+
+    @validates('nm_room')
+    def title_name(self, key, value):
+        return value.title()
