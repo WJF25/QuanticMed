@@ -94,3 +94,61 @@ def update_location(location_id):
     del response['clinic'], response['therapist']
 
     return jsonify(response), 200
+
+
+def get_locations():
+    session = current_app.db.session
+
+    param:dict = dict(request.args)
+
+    if param:
+        try:
+            date_locations = session.query(Locations).filter(getattr(Locations,param['data']) >= param['valor']).order_by(getattr(Locations,param['data'])).paginate(int(param.get('page',1)),int(param.get('per_page',10)), max_per_page=20).items
+        except AttributeError as error:
+            return jsonify({"Erro": str(error)}), 400
+        response = [dict(location) for location in date_locations]
+        for location in response:
+            location['room'] = dict(location['room'])
+            location['clinic'] = dict(location['clinic'])
+            location['therapist'] = dict(location['therapist'])
+            del location['room']['id_room'], location['room']['specialty']
+            del location['clinic']
+            location['therapists'] = location['therapist']['nm_therapist']
+            del location['therapist']
+        return jsonify(response)
+
+
+    locations = session.query(Locations).all()
+    response = [dict(location) for location in locations]
+    for location in response:
+        location['room'] = dict(location['room'])
+        location['clinic'] = dict(location['clinic'])
+        location['therapist'] = dict(location['therapist'])
+        del location['room']['id_room'], location['room']['specialty']
+        del location['clinic']
+        location['therapists'] = location['therapist']['nm_therapist']
+        del location['therapist']
+        
+
+    return jsonify(response)
+
+
+def get_locations_by_id(location_id):
+    
+
+    
+    location = Locations.query.filter_by(id_location=location_id).first()
+
+    if location is None:
+        return jsonify({"erro": "Locação não existe"}), 404
+
+    response:dict = dict(location)
+    response['room'] = dict(response['room'])
+    response['clinic'] = dict(response['clinic'])
+    response['therapist'] = dict(response['therapist'])
+    del response['room']['id_room'], response['room']['specialty']
+    del response['clinic']
+    response['therapists'] = response['therapist']['nm_therapist']
+    del response['therapist']
+
+    return jsonify(response)

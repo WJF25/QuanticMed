@@ -16,7 +16,7 @@ def create_rooms():
         
         verify_keys(data, "room", "post")
 
-        data["nm_room"] = data["nm_room"].title()
+        
         room = Rooms(**data)
         session.add(room)
         session.commit()
@@ -65,3 +65,44 @@ def update_room(room_id):
     response = Rooms.query.get(room_id)
 
     return jsonify(response),201
+
+
+
+def get_rooms():
+    session = current_app.db.session
+    param:dict = dict(request.args)
+    
+    
+    if param:
+        ordered_rooms = session.query(Rooms).order_by(getattr(Rooms, param['data'])).paginate(int(param.get('page',1)),int(param.get('per_page',10)), max_per_page=20).items
+        response = [dict(room) for room in ordered_rooms]
+        return jsonify(response)
+
+
+    rooms = session.query(Rooms).paginate(int(param.get('page',1)),int(param.get('per_page',10)), max_per_page=20).items
+    response = [dict(room) for room in rooms]
+
+    return jsonify(response)
+
+    
+
+
+
+def get_room_by_id(room_id):
+    session = current_app.db.session
+
+    room = Rooms.query.filter_by(id_room=room_id).first()
+    if room is None:
+        return jsonify({"erro": "Sala não existe"}), 404
+
+    return jsonify(room)
+
+
+def get_room_by_status(room_status):
+    session = current_app.db.session
+
+    room = Rooms.query.filter(Rooms.ds_status.ilike('%' + room_status + '%')).all()
+    if room is None:
+        return jsonify({"erro": "Sala não existe"}), 404
+
+    return jsonify(room)
