@@ -1,6 +1,5 @@
-from app.models.sessions_model import Sessions
 from datetime import datetime
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import backref, relationship, validates
 from app.configs.database import db
 from dataclasses import dataclass
 import sqlalchemy
@@ -11,6 +10,7 @@ db: sqlalchemy = db
 @dataclass
 class Customers(db.Model):
 
+    id_customer: int
     nm_customer: str
     nr_cpf: str
     nr_rg: str
@@ -60,3 +60,11 @@ class Customers(db.Model):
         yield "ds_email", self.ds_email
         yield "dt_birthdate", self.dt_birthdate
         # yield 'id_report', self.id_report
+
+    @validates("nm_customer")
+    def title_name(self, key, value):
+        return value.title()
+
+    @validates("ds_email")
+    def lower_email(self, key, value: str):
+        return value.lower()
