@@ -16,11 +16,10 @@ class Attendants(db.Model):
     nr_cpf: str
     nr_telephone: str
     nr_cellphone: str
-    ds_password: str
     ds_email: str
+    ds_password: str
     dt_creation_time: str
     id_clinic: int
-    clinic: Clinics
 
     __tablename__ = 'attendants'
 
