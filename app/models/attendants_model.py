@@ -1,4 +1,3 @@
-from ipdb import set_trace
 from app.configs.database import db
 from dataclasses import dataclass
 from sqlalchemy.orm import backref, relationship, validates
