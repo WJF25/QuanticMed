@@ -2,7 +2,26 @@
 
 Aplicação direcionada para o gerenciamento de uma clínica de terapias holísticas.
 
+## Introdução
+
+PESQUISAR
+
+## Prefixos
+
+O que é nm?
+
 ## /attendants
+
+(TODO: melhorar descricao, descrever mais detalhadamente!)
+Todos os recepcionista tem:
+
+- **nm_attendant**: nome completo do colaborador/recepcionista
+- **nr_cpf**: número do documento - CPF
+- **nr_telephone**: número de telefone residencial - campo não obrigatório
+- **nr_cellphone**: número de telefone móvel
+- **ds_email**: endereço de e-mail
+- **ds_password**: senha para acesso
+- **id_clinic**: id da clínica onde o colaborador atua
 
 <hr>
 
@@ -77,26 +96,16 @@ Retorna um recepcionista pelo seu id
 
 Cadastra um novo recepcionista
 
-Corpo da requisição:
-
-- **nm_attendant**: nome completo do colaborador/recepcionista
-- **nr_cpf**: número do documento - CPF
-- **nr_telephone**: número de telefone residencial - campo não obrigatório
-- **nr_cellphone**: número de telefone móvel
-- **ds_email**: endereço de e-mail
-- **ds_password**: senha para acesso
-- **id_clinic**: id da clínica onde o colaborador atua
-
 **Important**
 
 - **campos obrigatórios**: 'nm_attendant', 'nr_cpf', 'id_clinic';
-- os campos não obrigatórios devem seguir o seguinte formato: `{"anyone_key": ""}`
+- os campos não obrigatórios devem seguir o seguinte formato: `{"any_key": ""}`
 - **nr_cpf** deve ser único para cada atendente;
 - **_nr_cpf_**,**_nr_cellphone_**,**_nr_telephone_** devem conter somente os números;
 - **_ds_password_** deve conter no mínimo 6 caracteres;
 
 ```json
-    request 201
+    request
 
     {
         "nm_attendant":"John Doe",
@@ -110,7 +119,7 @@ Corpo da requisição:
 ```
 
 ```json
-   response:
+   response: 201
 
    {
         "id_attendant": 1,
