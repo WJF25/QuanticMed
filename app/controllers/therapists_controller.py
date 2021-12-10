@@ -1,9 +1,11 @@
 from flask import request, jsonify, current_app
 from psycopg2.errorcodes import UNIQUE_VIOLATION
-import sqlalchemy
+from sqlalchemy import and_
 import psycopg2
 from sqlalchemy.exc import IntegrityError
 from app.exc.excessoes import NumericError, PasswordMinLengthError, WrongKeyError
+from app.models.customers_model import Customers
+from app.models.sessions_model import Sessions
 from app.models.therapists_model import Therapists
 from app.controllers.verifications import is_numeric_data, verify_keys, password_min_length
 from app.models.specialties_model import Specialties
@@ -117,3 +119,13 @@ def get_therapist_by_id(id):
         return {"erro": "Recepcionista não encontrado"}
 
     return jsonify(filtered_data), 200
+
+def get_costumer_by_therapist(id_therapist, id_costumer):
+
+    therapist = Customers.query.select_from(Customers).join(Sessions).join(Therapists).filter_by(id_therapist=id_therapist).all()
+    print(therapist)
+
+    if len(therapist) == 0:
+        return {"erro": "Este terapeuta não possui nenhum cliente"}
+
+    return jsonify(therapist), 200
