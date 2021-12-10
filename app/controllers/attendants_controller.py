@@ -1,7 +1,7 @@
 from flask import request, jsonify, current_app, render_template
 import sqlalchemy
 import psycopg2
-from sqlalchemy import and_, or_
+from sqlalchemy import desc, asc, and_
 from app.models.attendants_model import Attendants
 from sqlalchemy.exc import IntegrityError
 from psycopg2.errorcodes import UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
@@ -24,7 +24,8 @@ def create_attendant():
         session.commit()
 
         return jsonify(inserted_data), 201
-
+    except TypeError as e:
+        return {'erro': str(e)}, 400
     except WrongKeyError as error:
         return jsonify({"Error": error.value}), 400
     except NumericError as error:
@@ -86,9 +87,20 @@ def get_all_attendants():
     page = request.args.get('page', 1)
     per_page = request.args.get('per_page', 5)
     order = request.args.get('order_by', 'id_attendant')
-    direction = request.args.get('dir', False)
+    direction = request.args.get('dir', 'asc')
+    name = request.args.get('name', '').title()
 
-    filtered_data = Attendants.query.order_by(getattr(Attendants, order)).paginate(
+    if direction is not 'asc' or direction is not 'desc':
+        direction = 'asc'
+
+    options = {
+        "asc": asc,
+        "desc": desc
+    }
+
+    query_filter = and_((Attendants.nm_attendant.contains(name)))
+
+    filtered_data = Attendants.query.filter(query_filter).order_by(options[direction](getattr(Attendants, order))).paginate(
         int(page), int(per_page), error_out=False).items
 
     """[comment]
@@ -101,9 +113,6 @@ def get_all_attendants():
         del attendant_data["clinic"]
         attendant_data["id_clinic"] = clinic_data.id_clinic
         response.append(attendant_data)
-
-    if direction:
-        response.reverse()
 
     return jsonify(response), 200
 
