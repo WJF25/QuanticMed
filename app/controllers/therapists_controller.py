@@ -1,6 +1,6 @@
 from flask import request, jsonify, current_app
 from psycopg2.errorcodes import UNIQUE_VIOLATION
-from sqlalchemy import and_
+from sqlalchemy import and_, asc, desc
 import psycopg2
 from sqlalchemy.exc import IntegrityError
 from app.exc.excessoes import NumericError, PasswordMinLengthError, WrongKeyError
@@ -128,12 +128,37 @@ def get_therapist_by_id(id):
 
     return jsonify(filtered_data), 200
 
+
 def get_costumer_by_therapist(id_therapist, id_costumer):
 
-    therapist = Customers.query.select_from(Customers).join(Sessions).join(Therapists).filter_by(id_therapist=id_therapist).all()
-    print(therapist)
+    therapist = Customers.query.select_from(Customers).join(Sessions).join(
+        Therapists).filter_by(id_therapist=id_therapist).all()
 
     if len(therapist) == 0:
         return {"erro": "Este terapeuta não possui nenhum cliente"}
 
     return jsonify(therapist), 200
+
+
+def get_therapist_schedule(id):
+    page = request.args.get('page', 1)
+    per_page = request.args.get('per_page', 20)
+    status = request.args.get('status', '')
+    order = request.args.get('order_by', 'id_session')
+    direction = request.args.get('dir', 'asc')
+
+    if direction is not 'asc' or direction is not 'desc':
+        direction = 'asc'
+
+    options = {
+        'asc': asc,
+        'desc': desc
+    }
+
+    query_filter = (and_((Sessions.id_therapist == id),
+                    (Sessions.ds_status.contains(status))))
+
+    filtered_data = Sessions.query.select_from(
+        Sessions).join(Therapists).filter(query_filter).paginate(int(page), int(per_page), error_out=False).items
+
+    return jsonify(filtered_data), 200
