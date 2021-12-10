@@ -4,7 +4,7 @@ from app.exc.excessoes import WrongKeyError, NoExistingValueError
 from app.models.rooms_model import Rooms
 from sqlalchemy.exc import DataError, IntegrityError
 from sqlalchemy import desc, asc
-from psycopg2.errors import ForeignKeyViolation
+from psycopg2.errors import ForeignKeyViolation, NotNullViolation
 from app.models.sessions_model import Sessions
 from app.models.therapists_model import Therapists
 from app.models.locations_model import Locations
@@ -30,6 +30,8 @@ def create_rooms():
     except IntegrityError as int_error:
         if type(int_error.orig) == ForeignKeyViolation:
             return jsonify({"erro": "Chave(s) estrangeira(s) não existe(m)"}), 400
+        if type(int_error.orig) == NotNullViolation:
+            return jsonify({"erro": "Campo não pode ser nulo"}), 400
     
 
     return jsonify(room), 201
@@ -40,10 +42,12 @@ def delete_room(room_id):
     
 
     room = Rooms.query.filter_by(id_room=room_id).first()
-    romm_response = dict(room)
+    
     
     if room is None:
         return jsonify({"erro": "Sala não existe"}), 404
+
+    romm_response = dict(room)
     session.delete(room)
     session.commit()
     
