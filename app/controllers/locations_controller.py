@@ -52,9 +52,11 @@ def delete_location(location_id):
 
     
     location = Locations.query.filter_by(id_location=location_id).first()
-    response_location = dict(location) if location is not None else None
+     
     if location is None:
         return jsonify({"erro": "Locação não existe"}), 404
+
+    response_location = dict(location)
     session.delete(location)
     session.commit()
     del response_location['clinic'], response_location['therapist']
@@ -197,4 +199,5 @@ def get_location_by_therapist(therapist_id):
         del location['clinic']
         location['therapists'] = location['therapist']['nm_therapist']
         del location['therapist']
+        
     return jsonify(response)

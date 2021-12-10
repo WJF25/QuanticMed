@@ -114,6 +114,6 @@ def get_all_therapists():
 def get_therapist_by_id(id):
     filtered_data = Therapists.query.get(id)
     if filtered_data is None:
-        return {"erro": "Recepcionista não encontrado"}
+        return {"erro": "Terapeuta não encontrado"}
 
     return jsonify(filtered_data), 200
