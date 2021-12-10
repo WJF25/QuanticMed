@@ -9,6 +9,7 @@ from app.models.sessions_model import Sessions
 from app.models.therapists_model import Therapists
 from app.controllers.verifications import is_numeric_data, verify_keys, password_min_length
 from app.models.specialties_model import Specialties
+from sqlalchemy import asc, desc, and_
 
 
 def create_therapist():
@@ -94,21 +95,28 @@ def get_all_therapists():
     page = request.args.get('page', 1)
     per_page = request.args.get('per_page', 5)
     order = request.args.get('order_by', 'id_therapist')
-    direction = request.args.get('dir', False)
+    direction = request.args.get('dir', 'asc')
+    name = request.args.get('name', '').title()
+    status = request.args.get('status', '')
 
-    filtered_data = Therapists.query.order_by(getattr(Therapists, order)).paginate(
+    if direction is not 'asc' or direction is not 'desc':
+        direction = 'asc'
+
+    options = {
+        "asc": asc,
+        "desc": desc
+    }
+
+    query_filter = and_((Therapists.nm_therapist.contains(
+        name)), (Therapists.ds_status.contains(status)))
+
+    filtered_data = Therapists.query.filter(query_filter).order_by(options[direction](getattr(Therapists, order))).paginate(
         int(page), int(per_page), error_out=False).items
 
-    """[comment]
-        The following code lists the Therapists object's to allow the function reverse
-    """
     response = list()
     for item in filtered_data:
         therapist_data = dict(item)
         response.append(therapist_data)
-
-    if direction:
-        response.reverse()
 
     return jsonify(response), 200
 
