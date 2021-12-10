@@ -21,7 +21,7 @@ class Customers(db.Model):
     nr_telephone: str
     nr_cellphone: str
     ds_email: str
-    dt_birthdate: datetime
+    dt_birthdate: str
 
     __tablename__ = "customers"
 
@@ -36,7 +36,7 @@ class Customers(db.Model):
     nr_telephone = db.Column(db.String(11))
     nr_cellphone = db.Column(db.String(11))
     ds_email = db.Column(db.String(50))
-    dt_birthdate = db.Column(db.Date, nullable=False)
+    dt_birthdate = db.Column(db.String(10), nullable=False)
     # id_report = db.Column(db.Integer, db.ForeignKey('reports.id_report')),
 
     appointments = relationship(

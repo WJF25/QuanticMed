@@ -16,6 +16,7 @@ class Therapists(db.Model):
     nr_crm: str
     nr_cellphone: str
     nm_user: str
+    ds_email: str
     ds_password: str
     ds_status: str
     specialties: list
@@ -30,6 +31,8 @@ class Therapists(db.Model):
     nm_user = db.Column(db.String(15), unique=True)
     ds_status = db.Column(db.String(15), default="ativo")
     ds_password = db.Column(db.String(15))
+    ds_email = db.Column(db.String(50), nullable=False)
+    fl_admin = db.Column(db.String(3), nullable=False, default='TRP')
 
     specialties = relationship('Specialties', secondary=therapists_specialties_table, backref=backref(
         'therapists', uselist=True), uselist=True)
@@ -41,6 +44,7 @@ class Therapists(db.Model):
         yield 'nr_crm', self.nr_crm
         yield 'nr_cellphone', self.nr_cellphone
         yield 'nm_user', self.nm_user
+        yield 'ds_email', self.ds_email
         yield 'ds_password', self.ds_password
         yield 'ds_status', self.ds_status
         yield 'specialties', self.specialties

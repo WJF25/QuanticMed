@@ -33,6 +33,7 @@ class Attendants(db.Model):
     ds_email = db.Column(db.String(40))
     dt_creation_time = db.Column(db.DateTime, default=datetime.now())
     id_clinic = db.Column(db.Integer, db.ForeignKey('clinics.id_clinic'))
+    fl_admin = db.Column(db.String(3), nullable=False, default='ATD')
 
     clinic = relationship('Clinics', backref=backref(
         'attendants', uselist=True), uselist=False)
