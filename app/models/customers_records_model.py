@@ -12,7 +12,6 @@ class CustomersRecords(db.Model):
     __tablename__ = "customers_records"
 
     id_customer_record: int
-    ds_comment: str
     customer: Customers
 
     id_customer_record = db.Column(db.Integer, primary_key=True)
