@@ -9,7 +9,7 @@ class Clinics(db.Model):
 
     id_clinic: int
     nm_clinic: str
-    nr_cnpj: str   
+    nr_cnpj: str
     ds_address: str
     nr_number: int
     ds_complement: str
@@ -25,9 +25,9 @@ class Clinics(db.Model):
 
     id_clinic = db.Column(db.Integer, primary_key=True)
     nm_clinic = db.Column(db.String(40), nullable=False)
-    nr_cnpj = db.Column(db.String(15), nullable=False, unique=True)    
+    nr_cnpj = db.Column(db.String(15), nullable=False, unique=True)
     ds_address = db.Column(db.String(30), nullable=False)
-    nr_number = db.Column(db.Integer, nullable=False)
+    nr_number = db.Column(db.String(10), nullable=False)
     ds_complement = db.Column(db.String(20))
     ds_district = db.Column(db.String(20))
     nr_zipcode = db.Column(db.String(10))
@@ -40,7 +40,7 @@ class Clinics(db.Model):
     def __iter__(self):
         yield "id_clinic", self.id_clinic
         yield "nm_clinic", self.nm_clinic
-        yield "nr_cnpj", self.nr_cnpj        
+        yield "nr_cnpj", self.nr_cnpj
         yield "ds_address", self.ds_address
         yield "nr_number", self.nr_number
         yield "ds_complement", self.ds_complement

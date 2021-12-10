@@ -18,10 +18,12 @@ class Customers(db.Model):
     nm_father: str
     nr_healthcare: str
     ds_address: str
+    nr_number: str
+    nr_zipcode: str
     nr_telephone: str
     nr_cellphone: str
     ds_email: str
-    dt_birthdate: datetime
+    dt_birthdate: str
 
     __tablename__ = "customers"
 
@@ -33,6 +35,8 @@ class Customers(db.Model):
     nm_father = db.Column(db.String(50))
     nr_healthcare = db.Column(db.String(30), unique=True)
     ds_address = db.Column(db.String(50), nullable=False)
+    nr_number = db.Column(db.String(10), nullable=False)
+    nr_zipcode = db.Column(db.String(10))
     nr_telephone = db.Column(db.String(11))
     nr_cellphone = db.Column(db.String(11))
     ds_email = db.Column(db.String(50))
@@ -55,6 +59,8 @@ class Customers(db.Model):
         yield "nm_father", self.nm_father
         yield "nr_healthcare", self.nr_healthcare
         yield "ds_address", self.ds_address
+        yield "nr_number", self.nr_number
+        yield "nr_zip_code", self.nr_zip_code
         yield "nr_telephone", self.nr_telephone
         yield "nr_cellphone", self.nr_cellphone
         yield "ds_email", self.ds_email
