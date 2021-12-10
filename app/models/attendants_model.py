@@ -48,6 +48,13 @@ class Attendants(db.Model):
         yield 'id_clinic', self.id_clinic
         yield 'clinic', self.clinic
 
+    @validates('nm_attendant', 'ds_password', 'ds_email')
+    def is_string(self, key, value):
+        if type(value) is not str:
+            raise TypeError(
+                'Algum deste campos não é do tipo string nm_attendant, ds_password,ds_email')
+        return value
+
     @validates('nm_attendant')
     def title_name(self, key, value):
         return value.title()
@@ -58,7 +65,8 @@ class Attendants(db.Model):
 
     @validates('nr_cpf', 'nr_cellphone', 'nr_telephone')
     def title_name(self, key, value):
-        if not value.isnumeric():
+        value = str(value)
+        if not value.isnumeric() and not value == '':
             raise NumericError(
                 {"message": "As chaves nr_cpf, nr_cellphone, nr_telephone devem ser numéricas", "error": f"O valor {value} não é numérico"})
         return value

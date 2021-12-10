@@ -5,7 +5,10 @@ from app.controllers.verifications import verify_keys, verify_none_values
 from psycopg2.errors import ForeignKeyViolation, UniqueViolation,NotNullViolation
 from sqlalchemy.exc import IntegrityError, DataError
 from datetime import datetime, timedelta
-import sqlalchemy 
+from sqlalchemy import desc, asc
+
+from app.models.rooms_model import Rooms
+from app.models.therapists_model import Therapists
 
 
 
@@ -35,6 +38,11 @@ def create_location():
     
     response = dict(location)
     del response['clinic'], response['therapist']
+    data = {"ds_status":"reservada"}
+    response['room'] = dict(response['room'])
+    response['room']['ds_status'] = data.get("ds_status", "null")
+    Rooms.query.filter_by(id_room=response['room']['id_room']).update(data)
+    session.commit()
 
     return jsonify(response), 201
 
@@ -44,10 +52,19 @@ def delete_location(location_id):
 
     
     location = Locations.query.filter_by(id_location=location_id).first()
-    response_location = dict(location)
+     
     if location is None:
         return jsonify({"erro": "Locação não existe"}), 404
+
+    response_location = dict(location)
     session.delete(location)
+    session.commit()
+    del response_location['clinic'], response_location['therapist']
+
+    data = {"ds_status":"livre"}
+    response_location['room'] = dict(response_location['room'])
+    response_location['room']['ds_status'] = data.get("ds_status", "null")
+    Rooms.query.filter_by(id_room=response_location['room']['id_room']).update(data)
     session.commit()
 
     return jsonify({"Locação Excluída":response_location})
@@ -73,7 +90,7 @@ def update_location(location_id):
 
         location = Locations.query.filter_by(id_location=location_id).first()
         verify_none_values(location)
-        print(data)
+        
         Locations.query.filter_by(id_location=location_id).update(data)
         session.commit()        
     except WrongKeyError as error:
@@ -99,11 +116,26 @@ def update_location(location_id):
 def get_locations():
     session = current_app.db.session
 
-    param:dict = dict(request.args)
+    param:dict = dict(request.args)    
+
+    # if param.get("filt_valor", "None").isnumeric():
+    #     param['filt_valor'] = int(param['filt_valor'])
+
+
+
+    q_options = {
+        "asc": asc(getattr(Locations, param.get('order_by', 'id_location'))),
+        "dsc": desc(getattr(Locations, param.get('order_by', 'id_location'))),
+        "filt_por":param.get('filt_por', 'id_location'),
+        "filt_valor":param.get('filt_valor', "None"),
+    }
 
     if param:
         try:
-            date_locations = session.query(Locations).filter(getattr(Locations,param['data']) >= param['valor']).order_by(getattr(Locations,param['data'])).paginate(int(param.get('page',1)),int(param.get('per_page',10)), max_per_page=20).items
+            date_locations = session.query(Locations)\
+                .filter(q_options.get("filt_por") >= q_options.get("filt_valor"))\
+                .order_by(q_options.get(param.get('dir', 'asc')))\
+                .paginate( int(param.get('page',1)) ,int(param.get('per_page', 10)), max_per_page=20).items
         except AttributeError as error:
             return jsonify({"Erro": str(error)}), 400
         response = [dict(location) for location in date_locations]
@@ -151,4 +183,21 @@ def get_locations_by_id(location_id):
     response['therapists'] = response['therapist']['nm_therapist']
     del response['therapist']
 
+    return jsonify(response)
+
+
+def get_location_by_therapist(therapist_id):
+    session = current_app.db.session
+    location = session.query(Locations).join(Therapists)\
+        .filter(Locations.id_therapist == therapist_id).all()
+    response = [dict(location) for location in location]
+    for location in response:
+        location['room'] = dict(location['room'])
+        location['clinic'] = dict(location['clinic'])
+        location['therapist'] = dict(location['therapist'])
+        del location['room']['specialty']
+        del location['clinic']
+        location['therapists'] = location['therapist']['nm_therapist']
+        del location['therapist']
+        
     return jsonify(response)
