@@ -5,6 +5,7 @@ from app.exc.customers_errors import CustomerNotFoundError
 from app.exc.excessoes import NumericError, WrongKeyError
 from app.models.customers_model import Customers
 from app.controllers.verifications import verify_keys, is_numeric_data
+from app.models.sessions_model import Sessions
 
 
 def create_customer():
@@ -89,3 +90,17 @@ def get_customer_by_id(id_customer):
     if not customer:
         return {"erro": "Não achamos nada no nosso banco de dados"}, 200
     return jsonify(customer), 404
+
+
+def get_customers_appointments(id_customer):
+    session = current_app.db.session
+    customer = session.query(Customers).filter_by(id_customer=id_customer).one_or_none()
+    dict_costumer = dict(customer)
+    del dict_costumer["id_customer"]
+    if not customer:
+        return {"erro": "Não achamos nada no nosso banco de dados"}
+    sessions = Sessions.query.filter_by(id_customer=id_customer).all()
+    if len(sessions) < 1:
+        return {"erro": "Não achamos nada no nosso banco de dados"}, 404
+    dict_costumer["sessões"] = sessions
+    return dict_costumer, 200
