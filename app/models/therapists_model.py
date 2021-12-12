@@ -48,7 +48,7 @@ class Therapists(db.Model):
         yield 'ds_email', self.ds_email
         yield 'ds_password', self.ds_password
         yield 'ds_status', self.ds_status
-        yield 'specialties', self.specialties
+        yield 'specialties', self.specialtie
 
     @validates('nm_attendant')
     def title_name(self, key, value):
@@ -62,7 +62,7 @@ class Therapists(db.Model):
         return value
 
     @validates('nr_cpf', 'nr_cellphone')
-    def title_name(self, key, value):
+    def is_numeric_data(self, key, value):
         value = str(value)
         if not value.isnumeric() and not value == '':
             raise NumericError(
@@ -70,5 +70,5 @@ class Therapists(db.Model):
         return value
 
     @validates('ds_status')
-    def title_name(self, key, value):
+    def normalize_status(self, key, value):
         return value.lower()
