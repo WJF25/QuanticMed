@@ -50,6 +50,7 @@ def update_specialty_by_id(specialty_id):
             return jsonify({"erro: Campo não pode ser vazio"}), 400
 
     response = Specialties.query.get(specialty_id)
+    session.commit()
 
     return jsonify(response), 201
 
