@@ -19,6 +19,7 @@ class Therapists(db.Model):
     ds_email: str
     ds_password: str
     ds_status: str
+    fl_admin: str
     specialties: list
 
     __tablename__ = 'therapists'
@@ -47,6 +48,7 @@ class Therapists(db.Model):
         yield 'ds_email', self.ds_email
         yield 'ds_password', self.ds_password
         yield 'ds_status', self.ds_status
+        yield 'fl_admin', self.fl_admin
         yield 'specialties', self.specialties
 
     @validates('nm_attendant', 'ds_password', 'ds_email')
