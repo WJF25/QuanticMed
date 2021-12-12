@@ -60,7 +60,7 @@ class Customers(db.Model):
         yield "nr_healthcare", self.nr_healthcare
         yield "ds_address", self.ds_address
         yield "nr_number", self.nr_number
-        yield "nr_zip_code", self.nr_zip_code
+        yield "nr_zip_code", self.nr_zipcode
         yield "nr_telephone", self.nr_telephone
         yield "nr_cellphone", self.nr_cellphone
         yield "ds_email", self.ds_email
