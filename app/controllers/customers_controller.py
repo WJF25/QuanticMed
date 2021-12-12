@@ -5,7 +5,9 @@ from app.exc.customers_errors import CustomerNotFoundError
 from app.exc.excessoes import NumericError, WrongKeyError
 from app.models.customers_model import Customers
 from app.controllers.verifications import verify_keys, is_numeric_data
+from app.models.customers_records_model import CustomersRecords
 from app.models.sessions_model import Sessions
+from app.models.techniques_model import Techniques
 
 
 def create_customer():
@@ -117,3 +119,33 @@ def get_customers_appointments(id_customer):
         return {"erro": "Não achamos nada no nosso banco de dados"}, 404
     dict_costumer["sessões"] = sessions
     return dict_costumer, 200
+
+
+# query = db.session.query(AlunoModel, AulaModel).select_from(AlunoModel).join(alunos_aulas).join(AulaModel).filter(AulaModel.id == 2).all()
+def get_customer_records(id_customer):
+    session = current_app.db.session
+    customer_record = (
+        session.query(CustomersRecords).filter_by(id_customer=id_customer).one_or_none()
+    )
+    if not customer_record:
+        return {"erro": "Não achamos nada no nosso banco de dados"}, 404
+    customer = (
+        session.query(Customers)
+        .filter_by(id_customer=customer_record.id_customer)
+        .one_or_none()
+    )
+    new_costumer = dict(customer)
+    new_costumer["customer_records"] = []
+    del new_costumer["id_customer"]
+    customer_records = (
+        session.query(Customers, Techniques)
+        .select_from(Customers)
+        .join(CustomersRecords)
+        .join(Techniques)
+        .filter(Techniques.id_customer_record == customer_record.id_customer_record)
+        .all()
+    )
+    records = [dict(record) for record in customer_records]
+    for i in records:
+        new_costumer["customer_records"].append(i["Techniques"])
+    return jsonify(new_costumer), 200
