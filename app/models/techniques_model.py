@@ -32,7 +32,7 @@ class Techniques(db.Model):
         db.Integer, db.ForeignKey("therapists.id_therapist"), nullable=False
     )
 
-    therapist = relationship("Therapists", backref="techniques", uselist=False)
+    therapist = relationship('Therapists', backref='techniques', uselist=False)
 
     def __iter__(self):
         yield "id_technique", self.id_technique
