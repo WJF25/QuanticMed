@@ -15,6 +15,7 @@ def verify_keys(kwargs, option, method="post"):
         "clinic": {'nm_clinic', 'nr_cnpj', 'ds_address', 'nr_number', 'ds_complement', 'ds_district', 'nr_zipcode', 'ds_city', 'ds_uf', 'ds_email', 'nr_telephone', 'nr_cellphone'},
         "specialty":{'nm_specialty'},
         "session":{'id_customer', 'id_therapist', 'dt_start', 'dt_end', 'ds_status' },
+        "technique":{'nm_technique','dt_start', 'dt_end', 'ds_comment', 'id_therapist', 'nm_customer' }
     }
 
     keys = set(kwargs.keys())

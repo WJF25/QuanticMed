@@ -11,6 +11,7 @@ db: sqlalchemy = db
 class Techniques(db.Model):
     __tablename__ = "techniques"
 
+    id_technique: int
     nm_technique: str
     dt_start: datetime
     dt_end: datetime
@@ -35,10 +36,10 @@ class Techniques(db.Model):
     therapist = relationship('Therapists', backref='techniques', uselist=False)
 
     def __iter__(self):
-        yield "id_technique", self.id_technique
-        yield "nm_technique", self.nm_technique
-        yield "dt_start", self.dt_start
-        yield "dt_end", self.dt_end
-        yield "ds_comment", self.ds_comment
-        yield "id_customer_record", self.id_customer_record
-        yield "id_therapists", self.id_therapists
+        yield 'id_technique', self.id_technique
+        yield 'nm_technique', self.nm_technique
+        yield 'dt_start', self.dt_start
+        yield 'dt_end', self.dt_end
+        yield 'ds_comment', self.ds_comment
+        yield 'id_customer_record', self.id_customer_record
+        yield 'id_therapist', self.id_therapist
