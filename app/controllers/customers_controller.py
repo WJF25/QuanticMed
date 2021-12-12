@@ -121,7 +121,6 @@ def get_customers_appointments(id_customer):
     return dict_costumer, 200
 
 
-# query = db.session.query(AlunoModel, AulaModel).select_from(AlunoModel).join(alunos_aulas).join(AulaModel).filter(AulaModel.id == 2).all()
 def get_customer_records(id_customer):
     session = current_app.db.session
     customer_record = (
