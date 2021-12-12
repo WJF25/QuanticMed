@@ -10,6 +10,7 @@ db: sqlalchemy = db
 class Techniques(db.Model):
     __tablename__ = "techniques"
 
+    id_technique: int
     nm_technique: str
     dt_start: datetime
     dt_end: datetime
@@ -27,7 +28,7 @@ class Techniques(db.Model):
     id_therapist = db.Column(db.Integer, db.ForeignKey(
         'therapists.id_therapist'), nullable=False)
 
-    therapist = relationship('therapists', backref='techniques', uselist=False)
+    therapist = relationship('Therapists', backref='techniques', uselist=False)
 
     def __iter__(self):
         yield 'id_technique', self.id_technique
@@ -36,4 +37,4 @@ class Techniques(db.Model):
         yield 'dt_end', self.dt_end
         yield 'ds_comment', self.ds_comment
         yield 'id_customer_record', self.id_customer_record
-        yield 'id_therapists', self.id_therapists
+        yield 'id_therapist', self.id_therapist
