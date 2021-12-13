@@ -4,8 +4,8 @@ from sqlalchemy.orm import backref, relationship, validates
 from datetime import datetime
 import sqlalchemy
 from app.models.clinics_model import Clinics
-from app.exc.excessoes import NumericError
-from werkzeug.security import generate_password_hash, check_password_hash, gen_salt
+from app.exc.excessoes import NumericError, EmailError
+import re
 db: sqlalchemy = db
 
 
@@ -51,26 +51,19 @@ class Attendants(db.Model):
         yield 'id_clinic', self.id_clinic
         yield 'clinic', self.clinic
 
-    
-
-    @validates('nm_attendant', 'ds_password', 'ds_email')
-    def is_string(self, key, value):
-        if type(value) is not str:
-            raise TypeError(
-                'Algum deste campos não é do tipo string nm_attendant, ds_password,ds_email')
-        return value
-    
-
     @validates('nm_attendant')
     def title_name(self, key, value):
         return value.title()
 
-    @validates('de_email')
-    def title_name(self, key, value):
-        return value.lower()
+    @validates('ds_email')
+    def check_email(self, key, value):
+        pattern = r'^[\w]+@[\w]+\.[\w]{2,4}'
+        if not re.match(pattern, value):
+            raise EmailError({'erro': 'E-mail inválido'})
+        return value
 
     @validates('nr_cpf', 'nr_cellphone', 'nr_telephone')
-    def title_name(self, key, value):
+    def is_numeric_data(self, key, value):
         value = str(value)
         if not value.isnumeric() and not value == '':
             raise NumericError(
