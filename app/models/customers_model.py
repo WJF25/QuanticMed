@@ -20,7 +20,7 @@ class Customers(db.Model):
     nm_father: str
     nr_healthcare: str
     ds_address: str
-    nr_number: str
+    nr_address: str
     nr_zipcode: str
     nr_telephone: str
     nr_cellphone: str
@@ -37,7 +37,7 @@ class Customers(db.Model):
     nm_father = db.Column(db.String(50))
     nr_healthcare = db.Column(db.String(30), unique=True)
     ds_address = db.Column(db.String(50), nullable=False)
-    nr_number = db.Column(db.String(10), nullable=False)
+    nr_address = db.Column(db.String(10), nullable=False)
     nr_zipcode = db.Column(db.String(10))
     nr_telephone = db.Column(db.String(11))
     nr_cellphone = db.Column(db.String(11))
@@ -61,7 +61,7 @@ class Customers(db.Model):
         yield "nm_father", self.nm_father
         yield "nr_healthcare", self.nr_healthcare
         yield "ds_address", self.ds_address
-        yield "nr_number", self.nr_number
+        yield "nr_address", self.nr_address
         yield "nr_zipcode", self.nr_zipcode
         yield "nr_telephone", self.nr_telephone
         yield "nr_cellphone", self.nr_cellphone
@@ -108,8 +108,8 @@ class Customers(db.Model):
             raise NumericError({'erro': 'CEP inválido'})
         return value
 
-    @validates('nr_number')
-    def check_address_number(self, key, value):
+    @validates('nr_address')
+    def check_address(self, key, value):
         pattern = r'^\d{10}$'
         if not re.match(pattern, value):
             raise NumericError({'erro': 'Número residencial inválido'})
