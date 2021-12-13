@@ -8,6 +8,8 @@ from psycopg2.errorcodes import UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
 from app.controllers.verifications import verify_keys, is_numeric_data
 from app.exc.excessoes import NumericError, EmailError, WrongKeyError
 
+from ipdb import set_trace
+
 
 def create_attendant():
 
@@ -17,11 +19,9 @@ def create_attendant():
         data = request.get_json()
 
         verify_keys(data, "attendant", "post")
-        
 
         inserted_data = Attendants(**data)
-        
-        
+
         session.add(inserted_data)
         session.commit()
 
@@ -94,7 +94,7 @@ def get_all_attendants():
     direction = request.args.get('dir', 'asc')
     name = request.args.get('name', '').title()
 
-    if direction != 'asc' or direction != 'desc':
+    if direction != 'asc' and direction != 'desc':
         direction = 'asc'
 
     options = {
