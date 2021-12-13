@@ -6,7 +6,7 @@ from app.models.clinics_model import Clinics
 from sqlalchemy.exc import IntegrityError
 from psycopg2.errorcodes import UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
 from app.controllers.verifications import verify_keys, is_numeric_data
-from app.exc.excessoes import NumericError, PasswordMinLengthError, WrongKeyError
+from app.exc.excessoes import EmailError, NumericError, WrongKeyError
 
 
 def create_clinic():
@@ -28,13 +28,13 @@ def create_clinic():
         return jsonify({"Error": error.value}), 400
     except NumericError as error:
         return jsonify(error.value), 400
-    except PasswordMinLengthError as error:
+    except EmailError as error:
         return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
             return {"error": "Cnpj ou email já cadastrados"}, 409
 
-        
+
 def update_clinic(id):
 
     session = current_app.db.session
@@ -58,7 +58,7 @@ def update_clinic(id):
         return jsonify({"erro": error.value}), 400
     except NumericError as error:
         return jsonify(error.value), 400
-    except PasswordMinLengthError as error:
+    except EmailError as error:
         return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
@@ -69,16 +69,16 @@ def update_clinic(id):
 
 def delete_clinic(id):
 
-        session = current_app.db.session
+    session = current_app.db.session
 
-        filtered_data = Clinics.query.get(id)
-        if filtered_data is None:
-            return {"error": "Clinica não encontrada"}
+    filtered_data = Clinics.query.get(id)
+    if filtered_data is None:
+        return {"error": "Clinica não encontrada"}
 
-        session.delete(filtered_data)
-        session.commit()
+    session.delete(filtered_data)
+    session.commit()
 
-        return "", 204
+    return "", 204
 
 
 def get_clinics_by_id(id):

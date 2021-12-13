@@ -108,12 +108,12 @@ def get_rooms():
 
 
 def get_room_by_id(room_id):
-    session = current_app.db.session
+    
 
     room = Rooms.query.filter_by(id_room=room_id).first()
     if room is None:
         return jsonify({"erro": "Sala não existe"}), 404
-
+    
     return jsonify(room), 200
 
 
@@ -136,9 +136,9 @@ def get_room_by_status(room_status):
 def get_room_schedule(id_room):
 
     param:dict = dict(request.args)
-    print(param)
+    
     room = Sessions.query.select_from(Sessions).join(Therapists).join(Locations).join(Rooms).filter(Rooms.id_room == id_room).filter(Sessions.ds_status==param.get("status_consulta", "agendado")).all()
 
-    print(room)
+    
 
     return jsonify(room), 200

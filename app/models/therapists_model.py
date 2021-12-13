@@ -1,9 +1,11 @@
+import re
 from app.configs.database import db
 from dataclasses import dataclass
 from sqlalchemy.orm import relationship, backref, validates
-from app.exc.excessoes import NumericError
+from app.exc.excessoes import EmailError, NumericError
 from app.models.therapists_specialties_table_model import therapists_specialties_table
 import sqlalchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db: sqlalchemy = db
 
@@ -62,14 +64,21 @@ class Therapists(db.Model):
     def title_name(self, key, value):
         return value.title()
 
-    @validates('de_email')
-    def title_name(self, key, value):
-        return value.lower()
+    @validates('ds_email')
+    def check_email(self, key, value):
+        pattern = r'^[\w]+@[\w]+\.[\w]{2,4}'
+        if not re.match(pattern, value):
+            raise EmailError({'erro': 'E-mail inválido'})
+        return value
 
     @validates('nr_cpf', 'nr_cellphone')
-    def title_name(self, key, value):
+    def is_numeric_data(self, key, value):
         value = str(value)
         if not value.isnumeric() and not value == '':
             raise NumericError(
                 {"message": "As chaves nr_cpf, nr_cellphone, nr_telephone devem ser numéricas", "error": f"O valor {value} não é numérico"})
         return value
+
+    @validates('ds_status')
+    def normalize_status(self, key, value):
+        return value.lower()

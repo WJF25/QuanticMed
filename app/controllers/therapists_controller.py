@@ -1,5 +1,6 @@
 from flask import request, jsonify, current_app
 from psycopg2.errorcodes import UNIQUE_VIOLATION
+from psycopg2.errors import NotNullViolation
 from sqlalchemy import and_, asc, desc
 import psycopg2
 from sqlalchemy.exc import IntegrityError
@@ -50,6 +51,8 @@ def create_therapist():
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
             return {"error": "Cpf, crm ou username já cadastrados"}, 409
+        if type(e.orig) == NotNullViolation:
+            return jsonify({"erro": "Campo não pode ser nulo"}), 400
         return str(e), 404
 
 
@@ -100,6 +103,7 @@ def get_all_therapists():
     status = request.args.get('status', '')
 
     if direction != 'asc' and direction != 'desc':
+
         direction = 'asc'
 
     options = {
