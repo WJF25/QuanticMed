@@ -51,14 +51,7 @@ class Therapists(db.Model):
         yield 'fl_admin', self.fl_admin
         yield 'specialties', self.specialties
 
-    @validates('nm_attendant', 'ds_password', 'ds_email')
-    def is_string(self, key, value):
-        if type(value) is not str:
-            raise TypeError(
-                'Algum deste campos não é do tipo string nm_attendant, ds_password,ds_email')
-        return value
-
-    @validates('nm_attendant')
+    @validates('nm_therapist')
     def title_name(self, key, value):
         return value.title()
 
@@ -69,17 +62,30 @@ class Therapists(db.Model):
             raise EmailError({'erro': 'E-mail inválido'})
         return value
 
-    @validates('nr_cpf', 'nr_cellphone')
-    def is_numeric_data(self, key, value):
-        value = str(value)
-        if not value.isnumeric() and not value == '':
-            raise NumericError(
-                {"message": "As chaves nr_cpf, nr_cellphone, nr_telephone devem ser numéricas", "error": f"O valor {value} não é numérico"})
-        return value
-
     @validates('ds_status')
     def normalize_status(self, key, value):
         return value.lower()
+
+    @validates('nr_cpf')
+    def check_cpf(self, key, value):
+        pattern = r'^\d{11}$'
+        if not re.match(pattern, value):
+            raise NumericError({'erro': 'Cpf inválido'})
+        return value
+
+    @validates('nr_cellphone')
+    def check_cellphone(self, key, value):
+        pattern = r'^\d{10,11}$'
+        if not re.match(pattern, value) and value != '':
+            raise NumericError({'erro': 'Telefone celular inválido'})
+        return value
+
+    @validates('nr_crm')
+    def check_crm(self, key, value):
+        pattern = r'^\d{4,10}\/[A-Z]{2}$'
+        if not re.match(pattern, value):
+            raise NumericError({'erro': 'CRM inválido'})
+        return value
 
     @property
     def ds_password(self):

@@ -20,7 +20,7 @@ class Customers(db.Model):
     nm_father: str
     nr_healthcare: str
     ds_address: str
-    nr_address_number: str
+    nr_address: str
     nr_zipcode: str
     nr_telephone: str
     nr_cellphone: str
@@ -37,7 +37,7 @@ class Customers(db.Model):
     nm_father = db.Column(db.String(50))
     nr_healthcare = db.Column(db.String(30), unique=True)
     ds_address = db.Column(db.String(50), nullable=False)
-    nr_address_number = db.Column(db.String(10), nullable=False)
+    nr_address = db.Column(db.String(10), nullable=False)
     nr_zipcode = db.Column(db.String(10))
     nr_telephone = db.Column(db.String(11))
     nr_cellphone = db.Column(db.String(11))
@@ -61,8 +61,8 @@ class Customers(db.Model):
         yield "nm_father", self.nm_father
         yield "nr_healthcare", self.nr_healthcare
         yield "ds_address", self.ds_address
-        yield "nr_address_number", self.nr_address_number
-        yield "nr_zipcode", self.nr_zip_code
+        yield "nr_address", self.nr_address
+        yield "nr_zipcode", self.nr_zipcode
         yield "nr_telephone", self.nr_telephone
         yield "nr_cellphone", self.nr_cellphone
         yield "ds_email", self.ds_email
@@ -80,10 +80,44 @@ class Customers(db.Model):
             raise EmailError({'erro': 'E-mail inválido'})
         return value
 
-    @validates('nr_cpf', 'nr_cellphone', 'nr_telephone', 'nr_rg', "nr_address_number")
-    def is_numeric_data(self, key, value):
-        value = str(value)
-        if not value.isnumeric() and not value == '':
-            raise NumericError(
-                {"message": "As chaves nr_cpf, nr_cellphone, nr_telephone devem ser numéricas", "error": f"O valor {value} não é numérico"})
+    @validates('nr_telephone')
+    def check_telephone(self, key, value):
+        pattern = r'\d{10}'
+        if not re.match(pattern, value) and value != '':
+            raise NumericError({'erro': 'Telefone residencial inválido'})
+        return value
+
+    @validates('nr_cpf')
+    def check_cpf(self, key, value):
+        pattern = r'^\d{11}$'
+        if not re.match(pattern, value):
+            raise NumericError({'erro': 'Cpf inválido'})
+        return value
+
+    @validates('nr_cellphone')
+    def check_cellphone(self, key, value):
+        pattern = r'^\d{10,11}$'
+        if not re.match(pattern, value) and value != '':
+            raise NumericError({'erro': 'Telefone celular inválido'})
+        return value
+
+    @validates('nr_zipcode')
+    def check_zipcode(self, key, value):
+        pattern = r'^\d{8}$'
+        if not re.match(pattern, value) and value != '':
+            raise NumericError({'erro': 'CEP inválido'})
+        return value
+
+    @validates('nr_address')
+    def check_address(self, key, value):
+        pattern = r'^\d{10}$'
+        if not re.match(pattern, value):
+            raise NumericError({'erro': 'Número residencial inválido'})
+        return value
+
+    @validates('nr_rg')
+    def check_rg(self, key, value):
+        pattern = r'^\d{9}$'
+        if not re.match(pattern, value):
+            raise NumericError({'erro': 'Número de RG inválido'})
         return value

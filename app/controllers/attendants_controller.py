@@ -8,8 +8,6 @@ from psycopg2.errorcodes import UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
 from app.controllers.verifications import verify_keys, is_numeric_data
 from app.exc.excessoes import NumericError, EmailError, WrongKeyError
 
-from ipdb import set_trace
-
 
 def create_attendant():
 
