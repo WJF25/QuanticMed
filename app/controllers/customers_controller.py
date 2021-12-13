@@ -2,7 +2,7 @@ from flask import request, jsonify, current_app
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import IntegrityError
 from app.exc.customers_errors import CustomerNotFoundError
-from app.exc.excessoes import NumericError, WrongKeyError
+from app.exc.excessoes import EmailError, NumericError, WrongKeyError
 from app.models.customers_model import Customers
 from app.controllers.verifications import verify_keys, is_numeric_data
 from app.models.customers_records_model import CustomersRecords
@@ -27,6 +27,8 @@ def create_customer():
         session.commit()
 
         return jsonify(customer), 201
+    except EmailError as E:
+        return jsonify(E.value), 400
     except NumericError as E:
         return jsonify(E.value), 400
     except IntegrityError as E:
@@ -55,6 +57,10 @@ def update_customer_by_id(id_customer):
         session.commit()
         new_costumer = Customers.query.get(id_customer)
         return jsonify(new_costumer), 200
+    except NumericError as E:
+        return jsonify(E.value), 400
+    except EmailError as E:
+        return jsonify(E.value), 400
     except CustomerNotFoundError as E:
         return jsonify(E.value), 404
     except WrongKeyError as E:
@@ -109,7 +115,8 @@ def get_customer_by_id(id_customer):
 
 def get_customers_appointments(id_customer):
     session = current_app.db.session
-    customer = session.query(Customers).filter_by(id_customer=id_customer).one_or_none()
+    customer = session.query(Customers).filter_by(
+        id_customer=id_customer).one_or_none()
     dict_costumer = dict(customer)
     del dict_costumer["id_customer"]
     if not customer:

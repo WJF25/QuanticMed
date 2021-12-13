@@ -22,7 +22,7 @@ class Sessions(db.Model):
         db.Integer, db.ForeignKey('therapists.id_therapist'))
     dt_start = db.Column(db.DateTime(), nullable=False)
     dt_end = db.Column(db.DateTime())
-    ds_status = db.Column(db.String(15))
+    ds_status = db.Column(db.String(15), default='ativo')
 
     def __iter__(self):
         yield 'id_session', self.id_session
@@ -34,4 +34,4 @@ class Sessions(db.Model):
 
     @validates('ds_status')
     def title_name(self, key, value):
-        return value.title()
+        return value.lower()
