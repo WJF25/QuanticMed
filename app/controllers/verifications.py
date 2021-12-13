@@ -66,7 +66,8 @@ def password_min_length(data):
 
 
 def verify_possiblle_dates(query, data):
-
+    if not query:
+        return True
     for item in query:
         location_dict = dict(item)
         dt_start_location = location_dict.get('dt_start')
