@@ -79,17 +79,17 @@ def delete_appointment(session_id):
     appointment = Sessions.query.filter_by(id_session=session_id).first()
     if appointment is None:
         return jsonify({"erro": "Sessão não existe"}), 404
-    response = dict(appointment)
     session.delete(appointment)
     session.commit()
 
-    return jsonify({"Especialidade Excluída": response}), 200
+    return jsonify({}), 204
 
 
 def get_appointment_by_id(session_id):
     session = current_app.db.session
 
-    appointment = Sessions.query.filter_by(id_session=session_id).first()
+    appointment = Sessions.query.filter_by(id_session = session_id).first()
+    session.commit()
     if appointment is None:
         return jsonify({"erro": "Sessão não existe"}), 404
 
