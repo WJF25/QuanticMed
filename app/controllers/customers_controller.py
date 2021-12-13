@@ -86,11 +86,9 @@ def delete_customer_by_id(id_customer):
 
 
 def get_customers():
-    customers = Customers.query.all()
     session = current_app.db.session
     params: dict = dict(request.args)
-    if params:
-        customers = (
+    customers = (
             session.query(Customers)
             .paginate(
                 int(params.get("page", 1)),
@@ -99,8 +97,6 @@ def get_customers():
             )
             .items
         )
-        response = [dict(customer) for customer in customers]
-        return jsonify(response)
     if len(customers) < 1:
         return {"erro": "Não achamos nada no nosso banco de dados"}, 404
     return jsonify(customers), 200
