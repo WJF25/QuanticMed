@@ -7,14 +7,15 @@ from app.controllers.verifications import verify_keys
 from psycopg2.errors import ForeignKeyViolation
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import DataError
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 import datetime
 
 
 def create_appointment():
     session = current_app.db.session
-    appointments = session.query(Sessions).filter_by(ds_status='ativada').all()
+    appointments = session.query(Sessions).filter(or_(Sessions.ds_status == 'agendado', Sessions.ds_status == 'ativada')).all()
     dict_appoint = [dict(appointment) for appointment in appointments]
+    print(dict_appoint)
     try:
         data = request.get_json()
         date_start = data["dt_start"]
