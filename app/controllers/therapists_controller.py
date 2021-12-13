@@ -133,10 +133,10 @@ def get_therapist_by_id(id):
     return jsonify(filtered_data), 200
 
 
-def get_costumer_by_therapist(id_therapist, id_costumer):
+def get_costumer_by_therapist(therapist_id):
 
     therapist = Customers.query.select_from(Customers).join(Sessions).join(
-        Therapists).filter_by(id_therapist=id_therapist).all()
+        Therapists).filter_by(id_therapist=therapist_id).all()
 
     if len(therapist) == 0:
         return {"erro": "Este terapeuta não possui nenhum cliente"}
