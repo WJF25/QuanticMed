@@ -18,17 +18,17 @@ def create_appointment():
         date_start = data["dt_start"]
         date_end = data["dt_end"]
         for i in dict_appoint:
-            d1 = datetime.datetime.strptime(str(date_start), "%d/%m/%Y").date()
-            d2 = datetime.datetime.strptime(date_end, "%d/%m/%Y").date()
+            d1 = datetime.datetime.strptime(str(date_start), "%d/%m/%Y %H:%M:%S")
+            d2 = datetime.datetime.strptime(date_end, "%d/%m/%Y %H:%M:%S")
             d3 = datetime.datetime.strptime(
                 str(i["dt_start"]), "%Y-%m-%d %H:%M:%S"
-            ).date()
+            )
             d4 = datetime.datetime.strptime(
                 str(i["dt_end"]), "%Y-%m-%d %H:%M:%S"
-            ).date()
+            )
             if d1 >= d3 and d2 <= d4:
                 raise SessionDateAlreadyInUse("data já está sendo usada")
-            if d1 >= d3 and d1 <= d4:
+            if d1 >= d3 and d1 <= d4 or d2 >= d3 and d2 <= d4:
                 raise SessionDateAlreadyInUse("data já está sendo usada")
         verify_keys(data, "session", "post")
         appointment = Sessions(**data)
