@@ -1,11 +1,11 @@
-from flask import request, jsonify, current_app, render_template
+from flask import request, jsonify, current_app
 import sqlalchemy
 import psycopg2
 from sqlalchemy import desc, asc, and_
 from app.models.attendants_model import Attendants
-from sqlalchemy.exc import IntegrityError
-from psycopg2.errorcodes import UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
-from app.controllers.verifications import verify_keys, is_numeric_data
+from sqlalchemy.exc import DataError, IntegrityError
+from psycopg2.errorcodes import STRING_DATA_RIGHT_TRUNCATION, UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
+from app.controllers.verifications import verify_keys
 from app.exc.excessoes import NumericError, EmailError, WrongKeyError
 
 
@@ -24,12 +24,9 @@ def create_attendant():
         session.commit()
 
         return jsonify(inserted_data), 201
-    except TypeError as e:
-        return {'erro': str(e)}, 400
-    except WrongKeyError as error:
-        return jsonify({"Error": error.value}), 400
-    except NumericError as error:
-        return jsonify(error.value), 400
+    except DataError as e:
+        if e.orig.pgcode == STRING_DATA_RIGHT_TRUNCATION:
+            return {"error": "Valor mais longo que o permitido"}, 400
     except EmailError as error:
         return jsonify(error.value), 400
     except IntegrityError as e:
@@ -37,6 +34,10 @@ def create_attendant():
             return {"error": "Cpf já cadastrado"}, 409
         if e.orig.pgcode == FOREIGN_KEY_VIOLATION:
             return {"error": "Clínica não cadastrada"}, 400
+    except NumericError as error:
+        return jsonify(error.value), 400
+    except WrongKeyError as error:
+        return jsonify({"Error": error.value}), 400
 
 
 def update_attendant(id):
@@ -56,17 +57,20 @@ def update_attendant(id):
 
         session.add(filtered_data)
         session.commit()
+    except DataError as e:
+        if e.orig.pgcode == STRING_DATA_RIGHT_TRUNCATION:
+            return {"error": "Valor mais longo que o permitido"}, 400
     except EmailError as error:
-        return jsonify(error.value), 400
-    except WrongKeyError as error:
-        return jsonify({"erro": error.value}), 400
-    except NumericError as error:
         return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
-            return {"erro": "Cpf já cadastrado"}, 409
+            return {"error": "Cpf já cadastrado"}, 409
         if e.orig.pgcode == FOREIGN_KEY_VIOLATION:
-            return {"erro": "Clínica não cadastrada"}, 400
+            return {"error": "Clínica não cadastrada"}, 400
+    except NumericError as error:
+        return jsonify(error.value), 400
+    except WrongKeyError as error:
+        return jsonify({"Error": error.value}), 400
 
     return jsonify(filtered_data), 200
 

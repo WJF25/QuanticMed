@@ -1,10 +1,11 @@
 from flask import request, jsonify, current_app
+from psycopg2.errorcodes import STRING_DATA_RIGHT_TRUNCATION
 from psycopg2.errors import UniqueViolation
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import DataError, IntegrityError
 from app.exc.customers_errors import CustomerNotFoundError
 from app.exc.excessoes import EmailError, NumericError, WrongKeyError
 from app.models.customers_model import Customers
-from app.controllers.verifications import verify_keys, is_numeric_data
+from app.controllers.verifications import verify_keys
 from app.models.customers_records_model import CustomersRecords
 from app.models.sessions_model import Sessions
 from app.models.techniques_model import Techniques
@@ -16,24 +17,22 @@ def create_customer():
 
     try:
         verify_keys(customer_data, "customer", "post")
-        is_numeric_data(
-            customer_data["nr_cpf"],
-            customer_data["nr_rg"],
-            customer_data["nr_telephone"],
-            customer_data["nr_cellphone"],
-        )
+
         customer = Customers(**customer_data)
         session.add(customer)
         session.commit()
 
         return jsonify(customer), 201
+    except DataError as e:
+        if e.orig.pgcode == STRING_DATA_RIGHT_TRUNCATION:
+            return {"error": "Valor mais longo que o permitido"}, 400
     except EmailError as E:
-        return jsonify(E.value), 400
-    except NumericError as E:
         return jsonify(E.value), 400
     except IntegrityError as E:
         if isinstance(E.orig, UniqueViolation):
             return {"erro": "cliente já cadastrado no banco de dados"}, 409
+    except NumericError as E:
+        return jsonify(E.value), 400
     except WrongKeyError as E:
         return jsonify({"Erro": E.value}), 400
     return {"erro": "Desculpe, nós não entendemos sua requisição"}, 400
@@ -57,17 +56,20 @@ def update_customer_by_id(id_customer):
         session.commit()
         new_costumer = Customers.query.get(id_customer)
         return jsonify(new_costumer), 200
-    except NumericError as E:
-        return jsonify(E.value), 400
-    except EmailError as E:
-        return jsonify(E.value), 400
     except CustomerNotFoundError as E:
         return jsonify(E.value), 404
-    except WrongKeyError as E:
-        return jsonify({"erro": E.value}), 400
+    except DataError as e:
+        if e.orig.pgcode == STRING_DATA_RIGHT_TRUNCATION:
+            return {"error": "Valor mais longo que o permitido"}, 400
+    except EmailError as E:
+        return jsonify(E.value), 400
     except IntegrityError as E:
         if isinstance(E.orig, UniqueViolation):
             return {"erro": "cliente já cadastrado no banco de dados"}, 409
+    except NumericError as E:
+        return jsonify(E.value), 400
+    except WrongKeyError as E:
+        return jsonify({"Erro": E.value}), 400
 
 
 def delete_customer_by_id(id_customer):
@@ -131,7 +133,8 @@ def get_customers_appointments(id_customer):
 def get_customer_records(id_customer):
     session = current_app.db.session
     customer_record = (
-        session.query(CustomersRecords).filter_by(id_customer=id_customer).one_or_none()
+        session.query(CustomersRecords).filter_by(
+            id_customer=id_customer).one_or_none()
     )
     if not customer_record:
         return {"erro": "Não achamos nada no nosso banco de dados"}, 404
