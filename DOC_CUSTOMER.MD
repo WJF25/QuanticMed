@@ -1,22 +1,22 @@
 # /customers
 
-Um 'customer' é o paciente que chegou na clínica e está querendo marcar uma consulta, ele é cadastrado por um atendente:
+Um 'customer' é o cliente que chegou na clínica e está querendo marcar uma sessão, ele é cadastrado por um atendente:
 
-- **"nm_customer"**: Nome do paciente cadastrado **"Deve ser uma string de no máximo 50 caracteres"**
+- **"nm_customer"**: Nome do cliente cadastrado **"Deve ser uma string de no máximo 50 caracteres"**
 
-- **"nr_cpf"**: Número do cpf do paciente **"Uma string de no máximo 11 caracteres"**
+- **"nr_cpf"**: Número do cpf do cliente **"Uma string de no máximo 11 caracteres"**
 
-- **"nr_rg"**: Número do cpf do paciente **"Uma string de no máximo 11 caracteres"**
+- **"nr_rg"**: Número do cpf do cliente **"Uma string de no máximo 11 caracteres"**
 
-- **"nm_mother"**&&**"nm_father"**: Nome da mãe e do pai do paciente **"String de no máximo 50 caracteres"**
-- **"nr_healthcare"**: Numero do convenio do paciente **"String de no máximo 30 caracteres"**
-- **"ds_adress"**: Endereço do paciente **"String de no máximo 50 caracteres"**
+- **"nm_mother"**&&**"nm_father"**: Nome da mãe e do pai do cliente **"String de no máximo 50 caracteres"**
+- **"nr_healthcare"**: Numero do convenio do cliente **"String de no máximo 30 caracteres"**
+- **"ds_adress"**: Endereço do cliente **"String de no máximo 50 caracteres"**
 
-- **"nr_adress"**: Numero da casa do paciente **"String de no máximo 10 caracteres"**
+- **"nr_adress"**: Numero da casa do cliente **"String de no máximo 10 caracteres"**
 
-- **"nr_zipcode"**: Numero do cep do paciente **"String de no máximo 10 caracteres"**
-- **"nr_telefone"**&&**"nr_cellphone"**: Numero do telefone fixo e movel do paciente **"String de no máximo 11 caracteres"**
-- **"ds_email"**: email do paciente **"String de no máximo 50 caracteres"**
+- **"nr_zipcode"**: Numero do cep do cliente **"String de no máximo 10 caracteres"**
+- **"nr_telefone"**&&**"nr_cellphone"**: Numero do telefone fixo e movel do cliente **"String de no máximo 11 caracteres"**
+- **"ds_email"**: email do cliente **"String de no máximo 50 caracteres"**
 
 ## Atenção ao campo dt_end
 
@@ -125,11 +125,11 @@ Retorna uma locação pelo seu id.
 
 ## **GET**: **_baseUrl_**/customers/id/sessions
 
-Retonna todas a consultas que o paciente já fez na clínica
+Retonna todas a sessões que o cliente já fez na clínica
 
 Exemplo de url:
 **_baseUrl_/locations/2/sessions**
-Retorna todas as consultas que o paciente de id já fez
+Retorna todas as sessões que o cliente de id já fez
 
 ```json
    response 200
@@ -184,11 +184,11 @@ Retorna todas as consultas que o paciente de id já fez
 
 ## **GET**: **_baseUrl_**/customers/id/customer_records
 
-Retonna todas a consultas que o paciente já fez na clínica
+Retonna todas a sessões que o cliente já fez na clínica
 
 Exemplo de url:
 **_baseUrl_/locations/3/customer_records**
-Retorna o prontuário com todas as observações feitas pelos terapeutas a respeito desse paciente
+Retorna o prontuário com todas as observações feitas pelos terapeutas a respeito desse cliente
 
 ```json
    response 200
@@ -217,7 +217,7 @@ Retorna o prontuário com todas as observações feitas pelos terapeutas a respe
 
 ## **POST**: **_baseUrl_**/customers
 
-Cadastra um novo paciente
+Cadastra um novo cliente
 
 **Important**
 
@@ -274,7 +274,7 @@ Atualiza os dados de uma locação pelo seu id
 
 **Important**
 
-- É possível alterar qualquer informação do paciente, para caso haja erro de digitação ou discrepância no banco de dados
+- É possível alterar qualquer informação do cliente, para caso haja erro de digitação ou discrepância no banco de dados
 
 Exemplo de Url:
 **_base_Url_/customers/3**
@@ -312,7 +312,7 @@ Exemplo de Url:
 
 ## **DELETE**: **_baseUrl_**/customers/id
 
-Deleta um registro de paciente, deve se passar o numero de id do mesmo, caso o id resista, a reposta será vazia com status code 204
+Deleta um registro de cliente, deve se passar o numero de id do mesmo, caso o id resista, a reposta será vazia com status code 204
 
 Exemplo de Url:
 **_base_Url_/locations/11**
