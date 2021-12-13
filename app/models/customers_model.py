@@ -62,7 +62,7 @@ class Customers(db.Model):
         yield "nr_healthcare", self.nr_healthcare
         yield "ds_address", self.ds_address
         yield "nr_number", self.nr_number
-        yield "nr_zipcode", self.nr_zip_code
+        yield "nr_zipcode", self.nr_zipcode
         yield "nr_telephone", self.nr_telephone
         yield "nr_cellphone", self.nr_cellphone
         yield "ds_email", self.ds_email
@@ -80,10 +80,44 @@ class Customers(db.Model):
             raise EmailError({'erro': 'E-mail inválido'})
         return value
 
-    @validates('nr_cpf', 'nr_cellphone', 'nr_telephone', 'nr_rg', "nr_number")
-    def is_numeric_data(self, key, value):
-        value = str(value)
-        if not value.isnumeric() and not value == '':
-            raise NumericError(
-                {"message": "As chaves nr_cpf, nr_cellphone, nr_telephone devem ser numéricas", "error": f"O valor {value} não é numérico"})
+    @validates('nr_telephone')
+    def check_telephone(self, key, value):
+        pattern = r'\d{10}'
+        if not re.match(pattern, value) and value != '':
+            raise NumericError({'erro': 'Telefone residencial inválido'})
+        return value
+
+    @validates('nr_cpf')
+    def check_cpf(self, key, value):
+        pattern = r'^\d{11}$'
+        if not re.match(pattern, value):
+            raise NumericError({'erro': 'Cpf inválido'})
+        return value
+
+    @validates('nr_cellphone')
+    def check_cellphone(self, key, value):
+        pattern = r'^\d{10,11}$'
+        if not re.match(pattern, value) and value != '':
+            raise NumericError({'erro': 'Telefone celular inválido'})
+        return value
+
+    @validates('nr_zipcode')
+    def check_zipcode(self, key, value):
+        pattern = r'^\d{8}$'
+        if not re.match(pattern, value) and value != '':
+            raise NumericError({'erro': 'CEP inválido'})
+        return value
+
+    @validates('nr_number')
+    def check_address_number(self, key, value):
+        pattern = r'^\d{10}$'
+        if not re.match(pattern, value):
+            raise NumericError({'erro': 'Número residencial inválido'})
+        return value
+
+    @validates('nr_rg')
+    def check_rg(self, key, value):
+        pattern = r'^\d{9}$'
+        if not re.match(pattern, value):
+            raise NumericError({'erro': 'Número de RG inválido'})
         return value

@@ -43,3 +43,7 @@ class Techniques(db.Model):
         yield 'ds_comment', self.ds_comment
         yield 'id_customer_record', self.id_customer_record
         yield 'id_therapist', self.id_therapist
+
+    @validates('nm_technique')
+    def normalize_name(self, key, value):
+        return value.title()

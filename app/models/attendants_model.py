@@ -38,7 +38,6 @@ class Attendants(db.Model):
     clinic = relationship('Clinics', backref=backref(
         'attendants', uselist=True), uselist=False)
 
-    
     def __iter__(self):
         yield 'id_attendant', self.id_attendant
         yield 'nm_attendant', self.nm_attendant
@@ -57,18 +56,28 @@ class Attendants(db.Model):
 
     @validates('ds_email')
     def check_email(self, key, value):
-        pattern = r'^[\w]+@[\w]+\.[\w]{2,4}'
+        pattern = r'^[\w]+@[\w]+\.[\w]{2,4}$'
         if not re.match(pattern, value):
             raise EmailError({'erro': 'E-mail inválido'})
         return value
 
-    @validates('nr_cpf', 'nr_cellphone', 'nr_telephone')
-    def is_numeric_data(self, key, value):
-        value = str(value)
-        if not value.isnumeric() and not value == '':
-            raise NumericError(
-                {"message": "As chaves nr_cpf, nr_cellphone, nr_telephone devem ser numéricas", "error": f"O valor {value} não é numérico"})
+    @validates('nr_telephone')
+    def check_telephone(self, key, value):
+        pattern = r'^\d{10}$'
+        if not re.match(pattern, value) and value != '':
+            raise NumericError({'erro': 'Telefone residencial inválido'})
         return value
 
-    
-    
+    @validates('nr_cpf')
+    def check_cpf(self, key, value):
+        pattern = r'^\d{11}$'
+        if not re.match(pattern, value):
+            raise NumericError({'erro': 'Cpf inválido'})
+        return value
+
+    @validates('nr_cellphone')
+    def check_cellphone(self, key, value):
+        pattern = r'^\d{10,11}$'
+        if not re.match(pattern, value) and value != '':
+            raise NumericError({'erro': 'Telefone celular inválido'})
+        return value
