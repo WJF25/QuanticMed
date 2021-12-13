@@ -6,7 +6,9 @@ from app.models.attendants_model import Attendants
 from sqlalchemy.exc import IntegrityError
 from psycopg2.errorcodes import UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
 from app.controllers.verifications import verify_keys, is_numeric_data
-from app.exc.excessoes import NumericError, PasswordMinLengthError, WrongKeyError
+from app.exc.excessoes import NumericError, EmailError, WrongKeyError
+
+from ipdb import set_trace
 
 
 def create_attendant():
@@ -30,7 +32,7 @@ def create_attendant():
         return jsonify({"Error": error.value}), 400
     except NumericError as error:
         return jsonify(error.value), 400
-    except PasswordMinLengthError as error:
+    except EmailError as error:
         return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
@@ -56,6 +58,8 @@ def update_attendant(id):
 
         session.add(filtered_data)
         session.commit()
+    except EmailError as error:
+        return jsonify(error.value), 400
     except WrongKeyError as error:
         return jsonify({"erro": error.value}), 400
     except NumericError as error:
@@ -90,7 +94,7 @@ def get_all_attendants():
     direction = request.args.get('dir', 'asc')
     name = request.args.get('name', '').title()
 
-    if direction is not 'asc' or direction is not 'desc':
+    if direction != 'asc' and direction != 'desc':
         direction = 'asc'
 
     options = {

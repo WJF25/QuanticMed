@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 import sqlalchemy
 from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import validates
 db: sqlalchemy = db
 
 
@@ -10,6 +11,7 @@ db: sqlalchemy = db
 class Techniques(db.Model):
     __tablename__ = "techniques"
 
+    id_technique: int
     nm_technique: str
     dt_start: datetime
     dt_end: datetime
@@ -22,12 +24,16 @@ class Techniques(db.Model):
     dt_start = db.Column(db.Date, nullable=False, default=datetime.now())
     dt_end = db.Column(db.Date)
     ds_comment = db.Column(db.String(1000))
-    id_customer_record = db.Column(db.Integer, db.ForeignKey(
-        'customers_records.id_customer_record'), nullable=False)
-    id_therapist = db.Column(db.Integer, db.ForeignKey(
-        'therapists.id_therapist'), nullable=False)
+    id_customer_record = db.Column(
+        db.Integer,
+        db.ForeignKey("customers_records.id_customer_record"),
+        nullable=False,
+    )
+    id_therapist = db.Column(
+        db.Integer, db.ForeignKey("therapists.id_therapist"), nullable=False
+    )
 
-    therapist = relationship('therapists', backref='techniques', uselist=False)
+    therapist = relationship('Therapists', backref='techniques', uselist=False)
 
     def __iter__(self):
         yield 'id_technique', self.id_technique
@@ -36,4 +42,4 @@ class Techniques(db.Model):
         yield 'dt_end', self.dt_end
         yield 'ds_comment', self.ds_comment
         yield 'id_customer_record', self.id_customer_record
-        yield 'id_therapists', self.id_therapists
+        yield 'id_therapist', self.id_therapist

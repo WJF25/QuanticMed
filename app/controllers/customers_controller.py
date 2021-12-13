@@ -2,10 +2,12 @@ from flask import request, jsonify, current_app
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import IntegrityError
 from app.exc.customers_errors import CustomerNotFoundError
-from app.exc.excessoes import NumericError, WrongKeyError
+from app.exc.excessoes import EmailError, NumericError, WrongKeyError
 from app.models.customers_model import Customers
 from app.controllers.verifications import verify_keys, is_numeric_data
+from app.models.customers_records_model import CustomersRecords
 from app.models.sessions_model import Sessions
+from app.models.techniques_model import Techniques
 
 
 def create_customer():
@@ -25,6 +27,8 @@ def create_customer():
         session.commit()
 
         return jsonify(customer), 201
+    except EmailError as E:
+        return jsonify(E.value), 400
     except NumericError as E:
         return jsonify(E.value), 400
     except IntegrityError as E:
@@ -53,6 +57,10 @@ def update_customer_by_id(id_customer):
         session.commit()
         new_costumer = Customers.query.get(id_customer)
         return jsonify(new_costumer), 200
+    except NumericError as E:
+        return jsonify(E.value), 400
+    except EmailError as E:
+        return jsonify(E.value), 400
     except CustomerNotFoundError as E:
         return jsonify(E.value), 404
     except WrongKeyError as E:
@@ -79,7 +87,20 @@ def delete_customer_by_id(id_customer):
 
 def get_customers():
     customers = Customers.query.all()
-    print(len(customers))
+    session = current_app.db.session
+    params: dict = dict(request.args)
+    if params:
+        customers = (
+            session.query(Customers)
+            .paginate(
+                int(params.get("page", 1)),
+                int(params.get("per_page", 15)),
+                max_per_page=30,
+            )
+            .items
+        )
+        response = [dict(customer) for customer in customers]
+        return jsonify(response)
     if len(customers) < 1:
         return {"erro": "Não achamos nada no nosso banco de dados"}, 404
     return jsonify(customers), 200
@@ -94,7 +115,8 @@ def get_customer_by_id(id_customer):
 
 def get_customers_appointments(id_customer):
     session = current_app.db.session
-    customer = session.query(Customers).filter_by(id_customer=id_customer).one_or_none()
+    customer = session.query(Customers).filter_by(
+        id_customer=id_customer).one_or_none()
     dict_costumer = dict(customer)
     del dict_costumer["id_customer"]
     if not customer:
@@ -104,3 +126,32 @@ def get_customers_appointments(id_customer):
         return {"erro": "Não achamos nada no nosso banco de dados"}, 404
     dict_costumer["sessões"] = sessions
     return dict_costumer, 200
+
+
+def get_customer_records(id_customer):
+    session = current_app.db.session
+    customer_record = (
+        session.query(CustomersRecords).filter_by(id_customer=id_customer).one_or_none()
+    )
+    if not customer_record:
+        return {"erro": "Não achamos nada no nosso banco de dados"}, 404
+    customer = (
+        session.query(Customers)
+        .filter_by(id_customer=customer_record.id_customer)
+        .one_or_none()
+    )
+    new_costumer = dict(customer)
+    new_costumer["customer_records"] = []
+    del new_costumer["id_customer"]
+    customer_records = (
+        session.query(Customers, Techniques)
+        .select_from(Customers)
+        .join(CustomersRecords)
+        .join(Techniques)
+        .filter(Techniques.id_customer_record == customer_record.id_customer_record)
+        .all()
+    )
+    records = [dict(record) for record in customer_records]
+    for i in records:
+        new_costumer["customer_records"].append(i["Techniques"])
+    return jsonify(new_costumer), 200

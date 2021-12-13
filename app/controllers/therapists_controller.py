@@ -1,5 +1,6 @@
 from flask import request, jsonify, current_app
 from psycopg2.errorcodes import UNIQUE_VIOLATION
+from psycopg2.errors import NotNullViolation
 from sqlalchemy import and_, asc, desc
 import psycopg2
 from sqlalchemy.exc import IntegrityError
@@ -50,6 +51,8 @@ def create_therapist():
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
             return {"error": "Cpf, crm ou username já cadastrados"}, 409
+        if type(e.orig) == NotNullViolation:
+            return jsonify({"erro": "Campo não pode ser nulo"}), 400
         return str(e), 404
 
 
@@ -99,7 +102,8 @@ def get_all_therapists():
     name = request.args.get('name', '').title()
     status = request.args.get('status', '')
 
-    if direction is not 'asc' or direction is not 'desc':
+    if direction != 'asc' and direction != 'desc':
+
         direction = 'asc'
 
     options = {
@@ -144,10 +148,10 @@ def get_therapist_schedule(id):
     page = request.args.get('page', 1)
     per_page = request.args.get('per_page', 20)
     status = request.args.get('status', '')
-    order = request.args.get('order_by', 'id_session')
-    direction = request.args.get('dir', 'asc')
+    order = request.args.get('order_by', 'dt_start')
+    direction = request.args.get('dir', 'desc')
 
-    if direction is not 'asc' or direction is not 'desc':
+    if direction != 'asc' and direction != 'desc':
         direction = 'asc'
 
     options = {
@@ -159,6 +163,6 @@ def get_therapist_schedule(id):
                     (Sessions.ds_status.contains(status))))
 
     filtered_data = Sessions.query.select_from(
-        Sessions).join(Therapists).filter(query_filter).paginate(int(page), int(per_page), error_out=False).items
+        Sessions).join(Therapists).filter(query_filter).order_by(options[direction](getattr(Sessions, order))).paginate(int(page), int(per_page), error_out=False).items
 
     return jsonify(filtered_data), 200

@@ -3,6 +3,8 @@ from sqlalchemy.orm import backref, relationship, validates
 from app.configs.database import db
 from dataclasses import dataclass
 import sqlalchemy
+import re
+from app.exc.excessoes import EmailError, NumericError
 
 db: sqlalchemy = db
 
@@ -60,17 +62,28 @@ class Customers(db.Model):
         yield "nr_healthcare", self.nr_healthcare
         yield "ds_address", self.ds_address
         yield "nr_number", self.nr_number
-        yield "nr_zip_code", self.nr_zip_code
+        yield "nr_zipcode", self.nr_zip_code
         yield "nr_telephone", self.nr_telephone
         yield "nr_cellphone", self.nr_cellphone
         yield "ds_email", self.ds_email
         yield "dt_birthdate", self.dt_birthdate
         # yield 'id_report', self.id_report
 
-    @validates("nm_customer")
+    @validates("nm_customer", 'nm_father', "nm_mother", "ds_address")
     def title_name(self, key, value):
         return value.title()
 
-    @validates("ds_email")
-    def lower_email(self, key, value: str):
-        return value.lower()
+    @validates('ds_email')
+    def check_email(self, key, value):
+        pattern = r'^[\w]+@[\w]+\.[\w]{2,4}'
+        if not re.match(pattern, value):
+            raise EmailError({'erro': 'E-mail inválido'})
+        return value
+
+    @validates('nr_cpf', 'nr_cellphone', 'nr_telephone', 'nr_rg', "nr_number")
+    def is_numeric_data(self, key, value):
+        value = str(value)
+        if not value.isnumeric() and not value == '':
+            raise NumericError(
+                {"message": "As chaves nr_cpf, nr_cellphone, nr_telephone devem ser numéricas", "error": f"O valor {value} não é numérico"})
+        return value

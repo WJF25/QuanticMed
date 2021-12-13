@@ -8,6 +8,7 @@ from app.routes.attendants_blueprint import bp as bp_attendant
 from app.routes.specialties_blueprint import bp as bp_specialties
 from app.routes.sessions_blueprint import bp as bp_session
 from app.routes.clinics_blueprint import bp as bp_clinics
+from app.routes.technique_blueprint import bp as bp_techniques
 
 
 def init_app(app: Flask):
@@ -19,3 +20,4 @@ def init_app(app: Flask):
     app.register_blueprint(bp_specialties)
     app.register_blueprint(bp_session)
     app.register_blueprint(bp_clinics)
+    app.register_blueprint(bp_techniques)
