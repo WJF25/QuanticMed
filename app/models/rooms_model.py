@@ -29,7 +29,10 @@ class Rooms(db.Model):
         yield 'ds_status', self.ds_status
         yield 'specialty', self.specialty
 
-
     @validates('nm_room')
     def title_name(self, key, value):
         return value.title()
+
+    @validates('ds_status')
+    def normalize_status(self, key, value):
+        return value.lower()

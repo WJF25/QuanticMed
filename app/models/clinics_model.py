@@ -66,15 +66,49 @@ class Clinics(db.Model):
 
     @validates('ds_email')
     def check_email(self, key, value):
-        pattern = r'^[\w]+@[\w]+\.[\w]{2,4}'
+        pattern = r'^[\w]+@[\w]+\.[\w]{2,4}$'
         if not re.match(pattern, value):
             raise EmailError({'erro': 'E-mail inválido'})
         return value
 
-    @validates('nr_cnpj', 'nr_cellphone', 'nr_telephone', 'nr_zipcode')
-    def is_numeric_data(self, key, value):
-        value = str(value)
-        if not value.isnumeric() and not value == '':
-            raise NumericError(
-                {"message": "As chaves nr_cpf, nr_cellphone, nr_telephone devem ser numéricas", "error": f"O valor {value} não é numérico"})
+    @validates('nr_telephone')
+    def check_telephone(self, key, value):
+        pattern = r'\d{10}'
+        if not re.match(pattern, value) and value != '':
+            raise NumericError({'erro': 'Telefone residencial inválido'})
+        return value
+
+    @validates('nr_cpf')
+    def check_cpf(self, key, value):
+        pattern = r'^\d{11}$'
+        if not re.match(pattern, value):
+            raise NumericError({'erro': 'Cpf inválido'})
+        return value
+
+    @validates('nr_cnpj')
+    def check_cnpj(self, key, value):
+        pattern = r'^\d{14}$'
+        if not re.match(pattern, value):
+            raise NumericError({'erro': 'Cnpj inválido'})
+        return value
+
+    @validates('nr_cellphone')
+    def check_cellphone(self, key, value):
+        pattern = r'^\d{10,11}$'
+        if not re.match(pattern, value) and value != '':
+            raise NumericError({'erro': 'Telefone celular inválido'})
+        return value
+
+    @validates('nr_zipcode')
+    def check_zipcode(self, key, value):
+        pattern = r'^\d{8}$'
+        if not re.match(pattern, value) and value != '':
+            raise NumericError({'erro': 'CEP inválido'})
+        return value
+
+    @validates('nr_number')
+    def check_address_number(self, key, value):
+        pattern = r'^\d{10}$'
+        if not re.match(pattern, value):
+            raise NumericError({'erro': 'Número residencial inválido'})
         return value
