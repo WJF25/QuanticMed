@@ -3,9 +3,9 @@ import sqlalchemy
 import psycopg2
 from sqlalchemy import and_, or_
 from app.models.clinics_model import Clinics
-from sqlalchemy.exc import IntegrityError
-from psycopg2.errorcodes import UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
-from app.controllers.verifications import verify_keys, is_numeric_data
+from sqlalchemy.exc import IntegrityError, DataError
+from psycopg2.errorcodes import UNIQUE_VIOLATION, STRING_DATA_RIGHT_TRUNCATION
+from app.controllers.verifications import verify_keys
 from app.exc.excessoes import EmailError, NumericError, WrongKeyError
 
 
@@ -24,15 +24,18 @@ def create_clinic():
         session.commit()
 
         return jsonify(inserted_data), 201
-    except WrongKeyError as error:
-        return jsonify({"Error": error.value}), 400
-    except NumericError as error:
-        return jsonify(error.value), 400
+    except DataError as e:
+        if e.orig.pgcode == STRING_DATA_RIGHT_TRUNCATION:
+            return {"error": "Valor mais longo que o permitido"}, 400
     except EmailError as error:
         return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
             return {"error": "Cnpj ou email já cadastrados"}, 409
+    except NumericError as error:
+        return jsonify(error.value), 400
+    except WrongKeyError as error:
+        return jsonify({"Error": error.value}), 400
 
 
 def update_clinic(id):
@@ -54,15 +57,18 @@ def update_clinic(id):
 
         session.add(filtered_data)
         session.commit()
-    except WrongKeyError as error:
-        return jsonify({"erro": error.value}), 400
-    except NumericError as error:
-        return jsonify(error.value), 400
+    except DataError as e:
+        if e.orig.pgcode == STRING_DATA_RIGHT_TRUNCATION:
+            return {"error": "Valor mais longo que o permitido"}, 400
     except EmailError as error:
         return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
-            return {"erro": "Cnpj ou email já cadastrados"}, 409
+            return {"error": "Cnpj ou email já cadastrados"}, 409
+    except NumericError as error:
+        return jsonify(error.value), 400
+    except WrongKeyError as error:
+        return jsonify({"Error": error.value}), 400
 
     return jsonify(filtered_data), 200
 

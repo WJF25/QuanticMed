@@ -1,14 +1,14 @@
 from flask import request, jsonify, current_app
-from psycopg2.errorcodes import UNIQUE_VIOLATION
+from psycopg2.errorcodes import UNIQUE_VIOLATION, STRING_DATA_RIGHT_TRUNCATION
 from psycopg2.errors import NotNullViolation
 from sqlalchemy import and_, asc, desc
 import psycopg2
-from sqlalchemy.exc import IntegrityError
-from app.exc.excessoes import NumericError, PasswordMinLengthError, WrongKeyError
+from sqlalchemy.exc import IntegrityError, DataError
+from app.exc.excessoes import NumericError, WrongKeyError, EmailError
 from app.models.customers_model import Customers
 from app.models.sessions_model import Sessions
 from app.models.therapists_model import Therapists
-from app.controllers.verifications import is_numeric_data, verify_keys, password_min_length
+from app.controllers.verifications import verify_keys
 from app.models.specialties_model import Specialties
 from sqlalchemy import asc, desc, and_
 
@@ -24,10 +24,6 @@ def create_therapist():
 
         inserted_data = Therapists(**data)
 
-        """[comment]
-            The code below lists and serializes the categories that a therapist has.
-            Add a new category if it doesn't exist
-        """
         for specialty in specialties_data:
             filtered_data = Specialties.query.filter_by(
                 nm_specialty=specialty['nm_specialty']).first()
@@ -42,18 +38,20 @@ def create_therapist():
 
         return jsonify(inserted_data), 201
 
-    except WrongKeyError as error:
-        return jsonify({"Error": error.value}), 400
-    except NumericError as error:
-        return jsonify(error.value), 400
-    except PasswordMinLengthError as error:
+    except DataError as e:
+        if e.orig.pgcode == STRING_DATA_RIGHT_TRUNCATION:
+            return {"error": "Valor mais longo que o permitido"}, 400
+    except EmailError as error:
         return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
             return {"error": "Cpf, crm ou username já cadastrados"}, 409
         if type(e.orig) == NotNullViolation:
             return jsonify({"erro": "Campo não pode ser nulo"}), 400
-        return str(e), 404
+    except NumericError as error:
+        return jsonify(error.value), 400
+    except WrongKeyError as error:
+        return jsonify({"Error": error.value}), 400
 
 
 def update_therapist(id):
@@ -73,9 +71,20 @@ def update_therapist(id):
 
         session.add(filtered_data)
         session.commit()
+    except DataError as e:
+        if e.orig.pgcode == STRING_DATA_RIGHT_TRUNCATION:
+            return {"error": "Valor mais longo que o permitido"}, 400
+    except EmailError as error:
+        return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
             return {"error": "Cpf, crm ou username já cadastrados"}, 409
+        if type(e.orig) == NotNullViolation:
+            return jsonify({"erro": "Campo não pode ser nulo"}), 400
+    except NumericError as error:
+        return jsonify(error.value), 400
+    except WrongKeyError as error:
+        return jsonify({"Error": error.value}), 400
 
     return jsonify(filtered_data), 200
 
