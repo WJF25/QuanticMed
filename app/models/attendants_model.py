@@ -38,6 +38,7 @@ class Attendants(db.Model):
     clinic = relationship('Clinics', backref=backref(
         'attendants', uselist=True), uselist=False)
 
+    
     def __iter__(self):
         yield 'id_attendant', self.id_attendant
         yield 'nm_attendant', self.nm_attendant
@@ -68,3 +69,6 @@ class Attendants(db.Model):
             raise NumericError(
                 {"message": "As chaves nr_cpf, nr_cellphone, nr_telephone devem ser numéricas", "error": f"O valor {value} não é numérico"})
         return value
+
+    
+    

@@ -1,6 +1,7 @@
 from app.exc.excessoes import WrongKeyError
 from app.exc.excessoes import NoExistingValueError
 from app.exc.excessoes import NumericError, PasswordMinLengthError
+from datetime import datetime as dt
 
 
 
@@ -11,7 +12,7 @@ def verify_keys(kwargs, option, method="post"):
         "room": {'nm_room', 'id_specialty', 'ds_status'},
         "attendant": {'nm_attendant', 'nr_cpf', 'nr_telephone', 'nr_cellphone', 'ds_password', 'id_clinic', 'ds_email'},
         "customer": {'nm_customer', 'nr_cpf', 'nr_rg', 'nm_mother', 'nm_father', 'nr_healthcare', 'ds_address', 'nr_telephone', "nr_cellphone", 'ds_email', 'dt_birthdate'},
-        "therapist": {'nm_therapist', 'nr_cpf', 'nr_crm', 'nm_user', 'ds_password', 'ds_specialties', 'nr_cellphone'},
+        "therapist": {'nm_therapist', 'nr_cpf', 'nr_crm', 'nm_user', 'ds_password', 'ds_specialties', 'nr_cellphone', 'ds_email','ds_status'},
         "clinic": {'nm_clinic', 'nr_cnpj', 'ds_address', 'nr_number', 'ds_complement', 'ds_district', 'nr_zipcode', 'ds_city', 'ds_uf', 'ds_email', 'nr_telephone', 'nr_cellphone'},
         "specialty":{'nm_specialty'},
         "session":{'id_customer', 'id_therapist', 'dt_start', 'dt_end', 'ds_status' },
@@ -62,3 +63,22 @@ def password_min_length(data):
     if len(data) < 6:
         raise PasswordMinLengthError(
             {"error": "Password must be at least 6 characters"})
+
+
+def verify_possiblle_dates(query, data):
+
+    for item in query:
+        location_dict = dict(item)
+        dt_start_location = location_dict.get('dt_start')
+        dt_end_location = location_dict.get('dt_end')        
+        dt_start_user = dt.strptime(data.get('dt_start'), "%d/%m/%Y %H:%M:%S")
+        dt_end_user = data.get('dt_end')
+
+        
+        if dt_start_user < dt_start_location and dt_end_user < dt_start_location:
+            return True
+        elif dt_start_user > dt_start_location and dt_start_user > dt_end_location:
+            return True
+    
+    return False
+    

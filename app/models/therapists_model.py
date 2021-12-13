@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship, backref, validates
 from app.exc.excessoes import EmailError, NumericError
 from app.models.therapists_specialties_table_model import therapists_specialties_table
 import sqlalchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db: sqlalchemy = db
 

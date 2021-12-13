@@ -17,9 +17,11 @@ def create_attendant():
         data = request.get_json()
 
         verify_keys(data, "attendant", "post")
+        
 
         inserted_data = Attendants(**data)
-
+        
+        
         session.add(inserted_data)
         session.commit()
 
@@ -92,7 +94,7 @@ def get_all_attendants():
     direction = request.args.get('dir', 'asc')
     name = request.args.get('name', '').title()
 
-    if direction is not 'asc' or direction is not 'desc':
+    if direction != 'asc' or direction != 'desc':
         direction = 'asc'
 
     options = {

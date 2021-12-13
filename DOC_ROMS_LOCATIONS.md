@@ -363,10 +363,10 @@ Esta rota aceita os seguintes parâmetros:
 - **dir**: direciona os dados de forma crescente ou decrescente;
 - **order_by**: ordena por qualquer campo de locations
 - **filt_por**: escolher um campo para filtrar
-- **filt_valor**: escolher um valor do campo se que se quer filtrar
+- **filt_valor**: escolher um valor do campo que se quer filtrar
 
 O parâmetro _filt_por_ foi pensando para ser usado com datas, os campos dt*start e dt_end por exemplo, mas nada impede de ser usado por qualquer outro campo.
-O parâmetro \_filt_valor* juntamente com _filt_por_ torna-se possível filtrar as locações por datas. Os dados retornam sempre da data escolhida em diante.
+O parâmetro *filt_valor* juntamente com \_filt_por* torna-se possível filtrar as locações por datas. Os dados retornam sempre da data escolhida em diante.
 
 Exemplo de url:
 **_baseUrl_/locations?filt_por=dt_start&dir=asc&order_by=dt_start&filt_valor=2021/12/08**
@@ -555,7 +555,7 @@ Atualiza os dados de uma locação pelo seu id
 
 - o campo _dt_dtart_ não pode ser alterado sozinho, _dt_end_ precisa ser informado também. No entanto é possível alterar apenas _dt_end_
 - Quando se altera uma locação automaticamente o status de room é alterado para _reservada_
-- todos os campos são alteráveis, fora a regra das dats explicado acima
+- todos os campos são alteráveis, fora a regra das datas explicado acima
 
 Exemplo de Url:
 **_base_Url_/locations/2**
