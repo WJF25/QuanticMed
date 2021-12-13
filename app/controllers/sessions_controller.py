@@ -1,4 +1,5 @@
 from flask import request, jsonify, current_app
+from werkzeug.wrappers import response
 from app.exc.excessoes import WrongKeyError, NoExistingValueError
 from app.exc.sessions_errors import SessionDateAlreadyInUse
 from app.models.sessions_model import Sessions
@@ -6,12 +7,13 @@ from app.controllers.verifications import verify_keys
 from psycopg2.errors import ForeignKeyViolation
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import DataError
+from sqlalchemy import and_
 import datetime
 
 
 def create_appointment():
     session = current_app.db.session
-    appointments = session.query(Sessions).all()
+    appointments = session.query(Sessions).filter_by(ds_status='ativada').all()
     dict_appoint = [dict(appointment) for appointment in appointments]
     try:
         data = request.get_json()
@@ -94,3 +96,15 @@ def get_appointment_by_id(session_id):
         return jsonify({"erro": "Sessão não existe"}), 404
 
     return jsonify(appointment), 200
+
+def get_all_appointments():
+    session = current_app.db.session
+    status = request.args.get('status',"")
+    page = request.args.get('page', 1)
+    per_page = request.args.get('per_page', 5)
+    query_filter = and_((Sessions.ds_status.contains(status)))
+    appointments = Sessions.query.filter(query_filter).paginate(
+        int(page), int(per_page), error_out=False).items
+
+    response =  [dict(appointment) for appointment in appointments]
+    return jsonify(response)

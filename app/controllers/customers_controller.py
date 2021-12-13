@@ -8,6 +8,7 @@ from app.controllers.verifications import verify_keys, is_numeric_data
 from app.models.customers_records_model import CustomersRecords
 from app.models.sessions_model import Sessions
 from app.models.techniques_model import Techniques
+from sqlalchemy import and_
 
 
 def create_customer():
@@ -88,6 +89,13 @@ def delete_customer_by_id(id_customer):
 def get_customers():
     session = current_app.db.session
     params: dict = dict(request.args)
+    name = request.args.get('nome', '')
+    if name:
+        query_filter = and_((Customers.nm_customer.contains(name)))
+        customer = Customers.query.filter(query_filter).one_or_none()
+        if not customer:
+            return {"erro": "Não achamos nada no nosso banco de dados"}, 404
+        return jsonify(customer)
     customers = (
             session.query(Customers)
             .paginate(
