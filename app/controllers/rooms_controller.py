@@ -113,7 +113,7 @@ def get_room_by_id(room_id):
     room = Rooms.query.filter_by(id_room=room_id).first()
     if room is None:
         return jsonify({"erro": "Sala não existe"}), 404
-
+    print(room.id_room)
     return jsonify(room), 200
 
 

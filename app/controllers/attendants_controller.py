@@ -16,10 +16,13 @@ def create_attendant():
     try:
         data = request.get_json()
 
-        verify_keys(data, "attendant", "post")
+        # verify_keys(data, "attendant", "post")
+
+        # passw = data.pop("ds_password")
 
         inserted_data = Attendants(**data)
-
+        # inserted_data.ds_password = passw
+        
         session.add(inserted_data)
         session.commit()
 
@@ -90,7 +93,7 @@ def get_all_attendants():
     direction = request.args.get('dir', 'asc')
     name = request.args.get('name', '').title()
 
-    if direction is not 'asc' or direction is not 'desc':
+    if direction != 'asc' or direction != 'desc':
         direction = 'asc'
 
     options = {

@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship, backref, validates
 from app.exc.excessoes import NumericError
 from app.models.therapists_specialties_table_model import therapists_specialties_table
 import sqlalchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db: sqlalchemy = db
 
@@ -71,3 +72,14 @@ class Therapists(db.Model):
             raise NumericError(
                 {"message": "As chaves nr_cpf, nr_cellphone, nr_telephone devem ser numéricas", "error": f"O valor {value} não é numérico"})
         return value
+
+    @property
+    def password(self):
+        raise AttributeError('Senha não é um atributo de leitura')
+
+    @password.setter
+    def password(self, password_to_hash):
+        self.ds_password = generate_password_hash(password_to_hash)
+
+    def check_password(self, password_to_check):
+        return check_password_hash(self.ds_password, password_to_check)

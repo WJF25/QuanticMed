@@ -5,6 +5,7 @@ from datetime import datetime
 import sqlalchemy
 from app.models.clinics_model import Clinics
 from app.exc.excessoes import NumericError
+from werkzeug.security import generate_password_hash, check_password_hash, gen_salt
 db: sqlalchemy = db
 
 
@@ -37,6 +38,7 @@ class Attendants(db.Model):
     clinic = relationship('Clinics', backref=backref(
         'attendants', uselist=True), uselist=False)
 
+    
     def __iter__(self):
         yield 'id_attendant', self.id_attendant
         yield 'nm_attendant', self.nm_attendant
@@ -49,12 +51,15 @@ class Attendants(db.Model):
         yield 'id_clinic', self.id_clinic
         yield 'clinic', self.clinic
 
+    
+
     @validates('nm_attendant', 'ds_password', 'ds_email')
     def is_string(self, key, value):
         if type(value) is not str:
             raise TypeError(
                 'Algum deste campos não é do tipo string nm_attendant, ds_password,ds_email')
         return value
+    
 
     @validates('nm_attendant')
     def title_name(self, key, value):
@@ -71,3 +76,6 @@ class Attendants(db.Model):
             raise NumericError(
                 {"message": "As chaves nr_cpf, nr_cellphone, nr_telephone devem ser numéricas", "error": f"O valor {value} não é numérico"})
         return value
+
+    
+    
