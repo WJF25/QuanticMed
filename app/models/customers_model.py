@@ -20,7 +20,7 @@ class Customers(db.Model):
     nm_father: str
     nr_healthcare: str
     ds_address: str
-    nr_number: str
+    nr_address_number: str
     nr_zipcode: str
     nr_telephone: str
     nr_cellphone: str
@@ -37,7 +37,7 @@ class Customers(db.Model):
     nm_father = db.Column(db.String(50))
     nr_healthcare = db.Column(db.String(30), unique=True)
     ds_address = db.Column(db.String(50), nullable=False)
-    nr_number = db.Column(db.String(10), nullable=False)
+    nr_address_number = db.Column(db.String(10), nullable=False)
     nr_zipcode = db.Column(db.String(10))
     nr_telephone = db.Column(db.String(11))
     nr_cellphone = db.Column(db.String(11))
@@ -61,7 +61,7 @@ class Customers(db.Model):
         yield "nm_father", self.nm_father
         yield "nr_healthcare", self.nr_healthcare
         yield "ds_address", self.ds_address
-        yield "nr_number", self.nr_number
+        yield "nr_address_number", self.nr_address_number
         yield "nr_zipcode", self.nr_zip_code
         yield "nr_telephone", self.nr_telephone
         yield "nr_cellphone", self.nr_cellphone
@@ -80,7 +80,7 @@ class Customers(db.Model):
             raise EmailError({'erro': 'E-mail inválido'})
         return value
 
-    @validates('nr_cpf', 'nr_cellphone', 'nr_telephone', 'nr_rg', "nr_number")
+    @validates('nr_cpf', 'nr_cellphone', 'nr_telephone', 'nr_rg', "nr_address_number")
     def is_numeric_data(self, key, value):
         value = str(value)
         if not value.isnumeric() and not value == '':

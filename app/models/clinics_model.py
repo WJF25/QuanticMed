@@ -15,7 +15,7 @@ class Clinics(db.Model):
     nm_clinic: str
     nr_cnpj: str
     ds_address: str
-    nr_number: int
+    nr_address_number: int
     ds_complement: str
     ds_district: str
     nr_zipcode: str
@@ -31,7 +31,7 @@ class Clinics(db.Model):
     nm_clinic = db.Column(db.String(40), nullable=False)
     nr_cnpj = db.Column(db.String(15), nullable=False, unique=True)
     ds_address = db.Column(db.String(30), nullable=False)
-    nr_number = db.Column(db.String(10), nullable=False)
+    nr_address_number = db.Column(db.String(10), nullable=False)
     ds_complement = db.Column(db.String(20))
     ds_district = db.Column(db.String(20))
     nr_zipcode = db.Column(db.String(10))
@@ -46,7 +46,7 @@ class Clinics(db.Model):
         yield "nm_clinic", self.nm_clinic
         yield "nr_cnpj", self.nr_cnpj
         yield "ds_address", self.ds_address
-        yield "nr_number", self.nr_number
+        yield "nr_address_number", self.nr_address_number
         yield "ds_complement", self.ds_complement
         yield "ds_district", self.ds_district
         yield "nr_zipcode", self.nr_zipcode
