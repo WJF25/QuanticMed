@@ -75,11 +75,10 @@ def delete_technique(technique_id):
     technique = Techniques.query.filter_by(id_technique = technique_id).first()
     if technique is None:
         return jsonify({"erro": "Tecnica não existe"}), 404
-    response = dict(technique)
     session.delete(technique)
     session.commit()
 
-    return jsonify({"Tecnica Excluída": response}), 200
+    return jsonify({}), 204
 
 def get_techniques():
     session = current_app.db.session

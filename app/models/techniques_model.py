@@ -13,8 +13,8 @@ class Techniques(db.Model):
 
     id_technique: int
     nm_technique: str
-    dt_start: datetime
-    dt_end: datetime
+    dt_start: str
+    dt_end: str
     ds_comment: str
     id_therapist: int
     id_customer_record: int

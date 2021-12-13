@@ -60,11 +60,10 @@ def delete_specialty(specialty_id):
     specialty = Specialties.query.filter_by(id_specialty = specialty_id).first()
     if specialty is None:
         return jsonify({"erro": "Especialidade não existe"}), 404
-    response = dict(specialty)
     session.delete(specialty)
     session.commit()
 
-    return jsonify({"Especialidade Excluída": response}), 200
+    return jsonify({}), 204
 
 def get_specialties():
     session = current_app.db.session
@@ -72,12 +71,12 @@ def get_specialties():
     
     
     if param:
-        ordered_specialties = session.query(Specialties).order_by(getattr(Specialties, param['data'])).paginate(int(param.get('page',1)),int(param.get('per_page',10)), max_per_page=20).items
+        ordered_specialties = session.query(Specialties).paginate(int(param.get('page',1)),int(param.get('per_page',40)), max_per_page=20).items
         response = [dict(specialty) for specialty in ordered_specialties]
         return jsonify(response)
 
 
-    specialties = session.query(Specialties).paginate(int(param.get('page',1)),int(param.get('per_page',10)), max_per_page=20).items
+    specialties = session.query(Specialties).paginate(int(param.get('page',1)),int(param.get('per_page',40)), max_per_page=20).items
     response = [dict(specialty) for specialty in specialties]
 
     return jsonify(response), 200
