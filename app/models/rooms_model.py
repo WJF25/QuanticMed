@@ -34,5 +34,5 @@ class Rooms(db.Model):
         return value.title()
 
     @validates('ds_status')
-    def normalize_status(self, key, value):
+    def title_name(self, key, value):
         return value.lower()
