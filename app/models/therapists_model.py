@@ -53,14 +53,7 @@ class Therapists(db.Model):
         yield 'fl_admin', self.fl_admin
         yield 'specialties', self.specialties
 
-    @validates('nm_attendant', 'ds_password', 'ds_email')
-    def is_string(self, key, value):
-        if type(value) is not str:
-            raise TypeError(
-                'Algum deste campos não é do tipo string nm_attendant, ds_password,ds_email')
-        return value
-
-    @validates('nm_attendant')
+    @validates('nm_therapist')
     def title_name(self, key, value):
         return value.title()
 
