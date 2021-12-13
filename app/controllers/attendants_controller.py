@@ -16,12 +16,11 @@ def create_attendant():
     try:
         data = request.get_json()
 
-        # verify_keys(data, "attendant", "post")
-
-        # passw = data.pop("ds_password")
+        verify_keys(data, "attendant", "post")
+        
 
         inserted_data = Attendants(**data)
-        # inserted_data.ds_password = passw
+        
         
         session.add(inserted_data)
         session.commit()
