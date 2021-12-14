@@ -46,7 +46,7 @@ class EmailError(Exception):
         return(repr(self.value))
 
 
-class SessionDateAlreadyInUse(Exception):
+class DateAlreadyInUseError(Exception):
     def __init__(self, value):
         self.value = value
 
