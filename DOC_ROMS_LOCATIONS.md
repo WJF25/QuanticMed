@@ -373,8 +373,8 @@ Esta rota aceita os seguintes parâmetros:
 - **filt_por**: escolher um campo para filtrar
 - **filt_valor**: escolher um valor do campo que se quer filtrar
 
-O parâmetro _filt_por_ foi pensando para ser usado com datas, os campos dt_start e dt_end por exemplo, mas nada impede de ser usado por qualquer outro campo.
-O parâmetro _filt_valor_ juntamente com _\_filt_por_ torna-se possível filtrar as locações por datas. Os dados retornam sempre da data escolhida em diante.
+O parâmetro _filt_por_ foi pensando para ser usado com datas, os campos 'dt_start' e 'dt_end' por exemplo, mas nada impede de ser usado por qualquer outro campo.
+O parâmetro _filt_valor_ juntamente com _filt_por_ torna-se possível filtrar as locações por datas. Os dados retornam sempre da data escolhida em diante.
 
 Exemplo de url:
 **_baseUrl_/locations?filt_por=dt_start&dir=asc&order_by=dt_start&filt_valor=2021/12/08**
