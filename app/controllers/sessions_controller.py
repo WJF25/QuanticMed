@@ -9,8 +9,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import DataError
 from sqlalchemy import and_, or_
 import datetime
+from flask_jwt_extended import jwt_required
+from app.controllers.login_controller import only_role
 
-
+@only_role('ATD')
+@jwt_required()
 def create_appointment():
     data = request.get_json()
     session = current_app.db.session
@@ -51,6 +54,7 @@ def create_appointment():
     return jsonify(response), 201
 
 
+@jwt_required()
 def update_appointment_by_id(session_id):
     session = current_app.db.session
 
@@ -76,7 +80,8 @@ def update_appointment_by_id(session_id):
 
     return jsonify(response), 201
 
-
+@only_role('ATD')
+@jwt_required()
 def delete_appointment(session_id):
     session = current_app.db.session
 
@@ -89,6 +94,7 @@ def delete_appointment(session_id):
     return jsonify({}), 204
 
 
+@jwt_required()
 def get_appointment_by_id(session_id):
     session = current_app.db.session
 
@@ -99,6 +105,7 @@ def get_appointment_by_id(session_id):
 
     return jsonify(appointment), 200
 
+@jwt_required()
 def get_all_appointments():
     session = current_app.db.session
     status = request.args.get('status',"")
@@ -107,6 +114,6 @@ def get_all_appointments():
     query_filter = and_((Sessions.ds_status.contains(status)))
     appointments = Sessions.query.filter(query_filter).paginate(
         int(page), int(per_page), error_out=False).items
-
+    session.commit()
     response =  [dict(appointment) for appointment in appointments]
     return jsonify(response)

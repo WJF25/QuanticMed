@@ -10,8 +10,12 @@ from app.models.customers_records_model import CustomersRecords
 from app.models.sessions_model import Sessions
 from app.models.techniques_model import Techniques
 from sqlalchemy import and_
+from flask_jwt_extended import jwt_required
+from app.controllers.login_controller import only_role
 
 
+@only_role('ATD')
+@jwt_required()
 def create_customer():
     session = current_app.db.session
     customer_data: dict = request.get_json()
@@ -38,7 +42,8 @@ def create_customer():
     response = dict(customer)
     return jsonify(response), 201
 
-
+@only_role('ATD')
+@jwt_required()
 def update_customer_by_id(id_customer):
     session = current_app.db.session
     data_to_update: dict = request.get_json()
@@ -71,7 +76,8 @@ def update_customer_by_id(id_customer):
     except WrongKeyError as E:
         return jsonify({"Erro": E.value}), 400
 
-
+@only_role('ATD')
+@jwt_required()
 def delete_customer_by_id(id_customer):
     session = current_app.db.session
     try:
@@ -84,7 +90,8 @@ def delete_customer_by_id(id_customer):
     except CustomerNotFoundError as E:
         return jsonify(E.value), 404
 
-
+@only_role('ATD')
+@jwt_required()
 def get_customers():
     session = current_app.db.session
     params: dict = dict(request.args)
@@ -108,14 +115,16 @@ def get_customers():
         return {"erro": "Não achamos nada no nosso banco de dados"}, 404
     return jsonify(customers), 200
 
-
+@only_role('ATD')
+@jwt_required()
 def get_customer_by_id(id_customer):
     customer = Customers.query.filter_by(id_customer=id_customer).one_or_none()
     if not customer:
         return {"erro": "Não achamos nada no nosso banco de dados"}, 200
     return jsonify(customer), 404
 
-
+@only_role('ATD')
+@jwt_required()
 def get_customers_appointments(id_customer):
     session = current_app.db.session
     customer = session.query(Customers).filter_by(
@@ -130,7 +139,8 @@ def get_customers_appointments(id_customer):
     dict_costumer["sessões"] = sessions
     return dict_costumer, 200
 
-
+@only_role('TRP')
+@jwt_required()
 def get_customer_records(id_customer):
     session = current_app.db.session
     customer_record = (

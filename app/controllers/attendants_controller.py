@@ -7,8 +7,11 @@ from sqlalchemy.exc import DataError, IntegrityError
 from psycopg2.errorcodes import STRING_DATA_RIGHT_TRUNCATION, UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
 from app.controllers.verifications import verify_keys
 from app.exc.excessoes import NumericError, EmailError, WrongKeyError
+from flask_jwt_extended import jwt_required
+from app.controllers.login_controller import only_role
 
-
+@only_role('ATD')
+@jwt_required()
 def create_attendant():
 
     session = current_app.db.session
@@ -39,7 +42,8 @@ def create_attendant():
     except WrongKeyError as error:
         return jsonify({"Error": error.value}), 400
 
-
+@only_role('ATD')
+@jwt_required()
 def update_attendant(id):
     session = current_app.db.session
 
@@ -74,7 +78,8 @@ def update_attendant(id):
 
     return jsonify(filtered_data), 200
 
-
+@only_role('ATD')
+@jwt_required()
 def delete_attendant(id):
     session = current_app.db.session
 
@@ -87,7 +92,8 @@ def delete_attendant(id):
 
     return '', 204
 
-
+@only_role('ATD')
+@jwt_required()
 def get_all_attendants():
 
     page = request.args.get('page', 1)
@@ -122,7 +128,8 @@ def get_all_attendants():
 
     return jsonify(response), 200
 
-
+@only_role('ATD')
+@jwt_required()
 def get_attendant_by_id(id):
 
     filtered_data = Attendants.query.get(id)

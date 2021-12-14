@@ -2,7 +2,6 @@ from flask import request, jsonify, current_app
 from psycopg2.errorcodes import UNIQUE_VIOLATION, STRING_DATA_RIGHT_TRUNCATION
 from psycopg2.errors import NotNullViolation
 from sqlalchemy import and_, asc, desc
-import psycopg2
 from sqlalchemy.exc import IntegrityError, DataError
 from app.exc.excessoes import NumericError, WrongKeyError, EmailError
 from app.models.customers_model import Customers
@@ -11,8 +10,11 @@ from app.models.therapists_model import Therapists
 from app.controllers.verifications import verify_keys
 from app.models.specialties_model import Specialties
 from sqlalchemy import asc, desc, and_
+from flask_jwt_extended import jwt_required
+from app.controllers.login_controller import only_role
 
-
+@only_role('ATD')
+@jwt_required()
 def create_therapist():
     session = current_app.db.session
 
@@ -53,7 +55,8 @@ def create_therapist():
     except WrongKeyError as error:
         return jsonify({"Error": error.value}), 400
 
-
+@only_role('ATD')
+@jwt_required()
 def update_therapist(id):
     session = current_app.db.session
 
@@ -89,6 +92,8 @@ def update_therapist(id):
     return jsonify(filtered_data), 200
 
 
+@only_role('ATD')
+@jwt_required()
 def delete_therapist(id):
     session = current_app.db.session
 
@@ -101,7 +106,8 @@ def delete_therapist(id):
 
     return '', 204
 
-
+@only_role('ATD')
+@jwt_required()
 def get_all_therapists():
 
     page = request.args.get('page', 1)
@@ -133,7 +139,8 @@ def get_all_therapists():
 
     return jsonify(response), 200
 
-
+@only_role('ATD')
+@jwt_required()
 def get_therapist_by_id(id):
     filtered_data = Therapists.query.get(id)
     if filtered_data is None:
@@ -142,6 +149,7 @@ def get_therapist_by_id(id):
     return jsonify(filtered_data), 200
 
 
+@jwt_required()
 def get_costumer_by_therapist(therapist_id):
 
     therapist = Customers.query.select_from(Customers).join(Sessions).join(

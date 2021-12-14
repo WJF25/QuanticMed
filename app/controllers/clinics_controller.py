@@ -7,8 +7,11 @@ from sqlalchemy.exc import IntegrityError, DataError
 from psycopg2.errorcodes import UNIQUE_VIOLATION, STRING_DATA_RIGHT_TRUNCATION
 from app.controllers.verifications import verify_keys
 from app.exc.excessoes import EmailError, NumericError, WrongKeyError
+from flask_jwt_extended import jwt_required
+from app.controllers.login_controller import only_role
 
-
+@only_role('ATD')
+@jwt_required()
 def create_clinic():
 
     session = current_app.db.session
@@ -37,7 +40,8 @@ def create_clinic():
     except WrongKeyError as error:
         return jsonify({"Error": error.value}), 400
 
-
+@only_role('ATD')
+@jwt_required()
 def update_clinic(id):
 
     session = current_app.db.session
@@ -72,7 +76,8 @@ def update_clinic(id):
 
     return jsonify(filtered_data), 200
 
-
+@only_role('ATD')
+@jwt_required()
 def delete_clinic(id):
 
     session = current_app.db.session
@@ -86,14 +91,16 @@ def delete_clinic(id):
 
     return "", 204
 
-
+@only_role('ATD')
+@jwt_required()
 def get_clinics_by_id(id):
     clinic = Clinics.query.filter_by(id_clinic=id).first()
     if clinic is None:
         return jsonify({"erro": "Clínica não existe"}), 404
     return jsonify(clinic)
 
-
+@only_role('ATD')
+@jwt_required()
 def get_clinics():
     clinic = Clinics.query.all()
 

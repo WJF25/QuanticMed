@@ -9,6 +9,8 @@ from sqlalchemy.exc import IntegrityError, DataError
 from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
 
+@only_role('TRP')
+@jwt_required()
 def create_technique():
     session = current_app.db.session
 
@@ -40,7 +42,8 @@ def create_technique():
 
     return jsonify(response), 201
 
-
+@only_role('TRP')
+@jwt_required()
 def update_technique_by_id(technique_id):
     session = current_app.db.session
 
@@ -80,7 +83,8 @@ def update_technique_by_id(technique_id):
 
     return jsonify(response), 201
 
-
+@only_role('TRP')
+@jwt_required()
 def delete_technique(technique_id):
     session = current_app.db.session
 
@@ -110,7 +114,8 @@ def get_techniques():
 
     return jsonify(response), 200
 
-
+@only_role('TRP')
+@jwt_required()
 def get_techniques_by_id(technique_id):
     session = current_app.db.session
 

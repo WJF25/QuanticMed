@@ -4,7 +4,11 @@ from app.models.specialties_model import Specialties
 from app.controllers.verifications import verify_keys, verify_none_values
 from psycopg2.errors import UniqueViolation,NotNullViolation
 from sqlalchemy.exc import IntegrityError
+from flask_jwt_extended import jwt_required
+from app.controllers.login_controller import only_role
 
+@only_role('ATD')
+@jwt_required()
 def create_specialty():
     session = current_app.db.session
 
@@ -26,6 +30,8 @@ def create_specialty():
         
     return jsonify(response), 201
 
+@only_role('ATD')
+@jwt_required()
 def update_specialty_by_id(specialty_id):
     session = current_app.db.session
     
@@ -54,6 +60,8 @@ def update_specialty_by_id(specialty_id):
 
     return jsonify(response), 201
 
+@only_role('ATD')
+@jwt_required()
 def delete_specialty(specialty_id):
     session = current_app.db.session
 
@@ -65,6 +73,8 @@ def delete_specialty(specialty_id):
 
     return jsonify({}), 204
 
+@only_role('ATD')
+@jwt_required()
 def get_specialties():
     session = current_app.db.session
     param:dict = dict(request.args)

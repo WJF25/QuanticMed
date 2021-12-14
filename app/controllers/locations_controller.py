@@ -10,8 +10,11 @@ from sqlalchemy import desc, asc, between, and_, not_
 from app.models.rooms_model import Rooms
 from app.models.therapists_model import Therapists
 from app.exc.sessions_errors import SessionDateAlreadyInUse
+from flask_jwt_extended import jwt_required
+from app.controllers.login_controller import only_role
 
-
+@only_role('ATD')
+@jwt_required()
 def create_location():
     session = current_app.db.session
 
@@ -55,7 +58,8 @@ def create_location():
 
     return jsonify(response), 201
 
-
+@only_role('ATD')
+@jwt_required()
 def delete_location(location_id):
     session = current_app.db.session
 
@@ -78,7 +82,8 @@ def delete_location(location_id):
 
     return jsonify({}), 204
 
-
+@only_role('ATD')
+@jwt_required()
 def update_location(location_id):
     session = current_app.db.session
 
@@ -128,7 +133,8 @@ def update_location(location_id):
 
     return jsonify(response), 200
 
-
+@only_role('ATD')
+@jwt_required()
 def get_locations():
     session = current_app.db.session
 
@@ -175,7 +181,8 @@ def get_locations():
 
     return jsonify(response)
 
-
+@only_role('ATD')
+@jwt_required()
 def get_locations_by_id(location_id):
 
     location = Locations.query.filter_by(id_location=location_id).first()
@@ -195,7 +202,8 @@ def get_locations_by_id(location_id):
 
     return jsonify(response)
 
-
+@only_role('ATD')
+@jwt_required()
 def get_location_by_therapist(therapist_id):
     session = current_app.db.session
     location = session.query(Locations).join(Therapists)\
@@ -213,7 +221,8 @@ def get_location_by_therapist(therapist_id):
 
     return jsonify(response)
 
-
+@only_role('ATD')
+@jwt_required()
 def get_location_by_clinic(clinic_id):
 
     filtered_data = Locations.query.filter_by(id_clinic=clinic_id).all()
