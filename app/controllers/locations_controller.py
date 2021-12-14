@@ -19,10 +19,13 @@ def create_location():
 
     try:
         data = request.get_json()
-        verify_keys(data, "location", "post")    
-        data['dt_end'] = datetime.strptime(data['dt_start'], "%d/%m/%Y %H:%M:%S") + timedelta(hours=int(data.get('dt_end', 1)[2:])) if "day" not in data.get('dt_end') else datetime.strptime(data['dt_start'], "%d/%m/%Y %H:%M:%S") + timedelta(days=int(data.get('dt_end', "day1")[3:]))
-        query = Locations.query.where(Locations.id_room == data['id_room']).all()
-        
+        verify_keys(data, "location", "post")
+        data['dt_end'] = datetime.strptime(data['dt_start'], "%d/%m/%Y %H:%M:%S") + timedelta(hours=int(data.get('dt_end', 'hr1')[2:]))\
+        if "day" not in data.get('dt_end') \
+        else datetime.strptime(data['dt_start'], "%d/%m/%Y %H:%M:%S") + timedelta(days=int(data.get('dt_end', "day1")[3:]))
+        query = Locations.query.where(
+            Locations.id_room == data['id_room']).all()
+
         verify_possiblle_dates(query, data)
 
         location = Locations(**data)
