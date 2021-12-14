@@ -59,28 +59,28 @@ class Attendants(db.Model):
     def check_email(self, key, value):
         pattern = r'^[\w]+@[\w]+\.[\w]{2,4}$'
         if not re.match(pattern, value):
-            raise EmailError({'erro': 'E-mail inválido'})
+            raise EmailError({'erro': 'E-mail inválido. Formato válido: usuario@email.com'})
         return value
 
     @validates('nr_telephone')
     def check_telephone(self, key, value):
         pattern = r'^\d{10}$'
         if not re.match(pattern, value) and value != '':
-            raise NumericError({'erro': 'Telefone residencial inválido'})
+            raise NumericError({'erro': 'Telefone residencial inválido. Formato válido: 10 dígitos numéricos.'})
         return value
 
     @validates('nr_cpf')
     def check_cpf(self, key, value):
         pattern = r'^\d{11}$'
         if not re.match(pattern, value):
-            raise NumericError({'erro': 'Cpf inválido'})
+            raise NumericError({'erro': 'Cpf inválido. Formato válido: 11 dígitos númericos.'})
         return value
 
     @validates('nr_cellphone')
     def check_cellphone(self, key, value):
         pattern = r'^\d{10,11}$'
         if not re.match(pattern, value) and value != '':
-            raise NumericError({'erro': 'Telefone celular inválido'})
+            raise NumericError({'erro': 'Telefone celular inválido. Formato válido: 10-11 dígitos numéricos.'})
         return value
 
     @property

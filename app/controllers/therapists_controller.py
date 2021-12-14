@@ -45,7 +45,7 @@ def create_therapist():
         return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
-            return {"error": "Cpf, crm ou username já cadastrados"}, 409
+            return {"error": "Cpf, crm, email ou username já cadastrados"}, 409
         if type(e.orig) == NotNullViolation:
             return jsonify({"erro": "Campo não pode ser nulo"}), 400
     except NumericError as error:
@@ -78,7 +78,7 @@ def update_therapist(id):
         return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
-            return {"error": "Cpf, crm ou username já cadastrados"}, 409
+            return {"error": "Cpf, crm, email ou username já cadastrados"}, 409
         if type(e.orig) == NotNullViolation:
             return jsonify({"erro": "Campo não pode ser nulo"}), 400
     except NumericError as error:
