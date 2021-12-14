@@ -1,5 +1,4 @@
 from flask import request, jsonify, current_app
-from werkzeug.wrappers import response
 from app.exc.excessoes import WrongKeyError, NoExistingValueError
 from app.exc.sessions_errors import SessionDateAlreadyInUse
 from app.models.sessions_model import Sessions
@@ -9,8 +8,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import DataError
 from sqlalchemy import and_, or_
 import datetime
+from flask_jwt_extended import jwt_required
+from app.controllers.login_controller import only_role
 
-
+@only_role('ATD')
+@jwt_required()
 def create_appointment():
     data = request.get_json()
     session = current_app.db.session
@@ -41,7 +43,7 @@ def create_appointment():
         response = dict(appointment)
     except WrongKeyError as error:
         return jsonify({"erro": error.value}), 400
-    except DataError as data_error:
+    except DataError:
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
     except IntegrityError as int_error:
         if type(int_error.orig) == ForeignKeyViolation:
@@ -51,6 +53,7 @@ def create_appointment():
     return jsonify(response), 201
 
 
+@jwt_required()
 def update_appointment_by_id(session_id):
     session = current_app.db.session
 
@@ -66,7 +69,7 @@ def update_appointment_by_id(session_id):
         session.commit()
     except WrongKeyError as error:
         return jsonify({"Erro": error.value}), 400
-    except DataError as data_error:
+    except DataError:
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
     except NoExistingValueError as error:
         return jsonify({"erro": error.value}), 404
@@ -76,7 +79,8 @@ def update_appointment_by_id(session_id):
 
     return jsonify(response), 201
 
-
+@only_role('ATD')
+@jwt_required()
 def delete_appointment(session_id):
     session = current_app.db.session
 
@@ -89,6 +93,7 @@ def delete_appointment(session_id):
     return jsonify({}), 204
 
 
+@jwt_required()
 def get_appointment_by_id(session_id):
     session = current_app.db.session
 
@@ -99,6 +104,7 @@ def get_appointment_by_id(session_id):
 
     return jsonify(appointment), 200
 
+@jwt_required()
 def get_all_appointments():
     session = current_app.db.session
     status = request.args.get('status',"")
@@ -107,6 +113,6 @@ def get_all_appointments():
     query_filter = and_((Sessions.ds_status.contains(status)))
     appointments = Sessions.query.filter(query_filter).paginate(
         int(page), int(per_page), error_out=False).items
-
+    session.commit()
     response =  [dict(appointment) for appointment in appointments]
     return jsonify(response)

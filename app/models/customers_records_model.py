@@ -12,6 +12,7 @@ class CustomersRecords(db.Model):
     __tablename__ = "customers_records"
 
     id_customer_record: int
+    id_customer:int
     customer: Customers
 
     id_customer_record = db.Column(db.Integer, primary_key=True)

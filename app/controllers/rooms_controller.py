@@ -8,8 +8,11 @@ from psycopg2.errors import ForeignKeyViolation, NotNullViolation
 from app.models.sessions_model import Sessions
 from app.models.therapists_model import Therapists
 from app.models.locations_model import Locations
+from flask_jwt_extended import jwt_required
+from app.controllers.login_controller import only_role
 
-
+@only_role('ATD')
+@jwt_required()
 def create_rooms():
     session = current_app.db.session
 
@@ -33,7 +36,8 @@ def create_rooms():
 
     return jsonify(room), 201
 
-
+@only_role('ATD')
+@jwt_required()
 def delete_room(room_id):
     session = current_app.db.session
 
@@ -46,9 +50,10 @@ def delete_room(room_id):
     session.delete(room)
     session.commit()
 
-    return jsonify({"Sala Deletada": room_response}), 200
+    return jsonify({}), 204
 
-
+@only_role('ATD')
+@jwt_required()
 def update_room(room_id):
     session = current_app.db.session
 
@@ -64,7 +69,7 @@ def update_room(room_id):
         session.commit()
     except WrongKeyError as error:
         return jsonify({"Erro": error.value}), 400
-    except DataError as data_error:
+    except DataError:
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
     except NoExistingValueError as error:
         return jsonify({"erro": error.value}), 404
@@ -73,7 +78,8 @@ def update_room(room_id):
 
     return jsonify(response), 201
 
-
+@only_role('ATD')
+@jwt_required()
 def get_rooms():
     session = current_app.db.session
     param: dict = dict(request.args)
@@ -89,7 +95,7 @@ def get_rooms():
             .paginate(int(param.get('page', 1)), int(param.get('per_page', 10)), max_per_page=20).items
 
         response = [dict(room) for room in ordered_rooms]
-        return jsonify(response)
+        return jsonify(response), 200
 
     rooms = session.query(Rooms).paginate(int(param.get('page', 1)), int(
         param.get('per_page', 10)), max_per_page=20).items
@@ -97,7 +103,8 @@ def get_rooms():
 
     return jsonify(response), 200
 
-
+@only_role('ATD')
+@jwt_required()
 def get_room_by_id(room_id):
 
     room = Rooms.query.filter_by(id_room=room_id).first()
@@ -106,7 +113,8 @@ def get_room_by_id(room_id):
 
     return jsonify(room), 200
 
-
+@only_role('ATD')
+@jwt_required()
 def get_room_by_status(room_status):
 
     param: dict = dict(request.args)
@@ -123,7 +131,8 @@ def get_room_by_status(room_status):
 
     return jsonify(room), 200
 
-
+@only_role('ATD')
+@jwt_required()
 def get_room_schedule(id_room):
 
     param: dict = dict(request.args)
