@@ -99,7 +99,7 @@ def get_customers():
             session.query(Customers)
             .paginate(
                 int(params.get("page", 1)),
-                int(params.get("per_page", 15)),
+                int(params.get("per_page", 50)),
                 max_per_page=30,
             )
             .items
