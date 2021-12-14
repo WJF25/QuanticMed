@@ -27,6 +27,10 @@ def create_customer():
         session.add(customer)
         session.commit()
         
+        customer_record = CustomersRecords(**{"id_customer": customer.id_customer})
+        session.add(customer_record)
+        session.commit()
+        
     except DataError as e:
         if e.orig.pgcode == STRING_DATA_RIGHT_TRUNCATION:
             return {"error": "Valor mais longo que o permitido"}, 400
@@ -155,8 +159,8 @@ def get_customer_records(id_customer):
         .one_or_none()
     )
     new_costumer = dict(customer)
+    new_costumer["id_customer_record"] = customer_record.id_customer_record
     new_costumer["customer_records"] = []
-    del new_costumer["id_customer"]
     customer_records = (
         session.query(Customers, Techniques)
         .select_from(Customers)

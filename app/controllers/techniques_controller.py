@@ -17,13 +17,6 @@ def create_technique():
     try:
         data = request.get_json()
         verify_keys(data, "technique", "post")
-        customer = session.query(Customers).filter_by(
-            nm_customer=data["nm_customer"]).first()
-        if customer == None:
-            return jsonify({"erro": "Usuário não encontrado"}), 404
-        customer_record = customer.record
-        data['id_customer_record'] = customer_record.id_customer_record
-        del data['nm_customer']
         technique = Techniques(**data)
         session.add(technique)
         session.commit()
@@ -51,18 +44,9 @@ def update_technique_by_id(technique_id):
 
     try:
         verify_keys(data, "technique", "patch")
-        technique = Techniques.query.filter_by(
-            id_technique=technique_id).first()
+        technique = Techniques.query.filter_by(id_technique=technique_id).first()
         if technique is None:
             return jsonify({"erro": "Tecnica não existe"}), 404
-        if data.get('nm_customer') != None:
-            customer = session.query(Customers).filter_by(
-                nm_customer=data["nm_customer"]).first()
-            if customer == None:
-                return jsonify({"erro": "Usuário não encontrado"}), 404
-            customer_record = customer.record
-            data['id_customer_record'] = customer_record.id_customer_record
-            del data['nm_customer']
         Techniques.query.filter_by(id_technique=technique_id).update(data)
         session.commit()
     except DataError as e:
