@@ -1,6 +1,14 @@
 # Introdução
 
-PESQUISAR
+# Como instalar as dependências do projeto:
+
+- python -m venv venv = instala o ambiente virtual
+- pip install -r requirements.txt = instala todas as dependências
+
+# Como rodar o código localmente
+
+- utilize o comando flask run --no-reload no terminal e a aplicação inicia
+- **Importante:** como temos um agendador de tarefas a cada 1 hora ele vai buscar a agenda dos clientes e enviar o e-mail para aquele período que tiver consultas, com o flask no modo debug normal vai duplicar essa atividade, por isso o --no-reload no comand flask run
 
 ## Prefixos
 
@@ -17,9 +25,9 @@ Lista de prefixos utilizados nesta API:
 Este endpoint trata de todos os registros das salas da clínica, as quais são possíveis alugar por dias ou horas. Cada Terapeuta precisa ter um sala para poder prestar serviçoes na Clínica.
 Uma sala, tem a seguinte estrutura no banco de dados:
 
-- **nm_room**: nome da sala
-- **id_specialty**: id da specialty relacionada a essa sala
-- **ds_status**: status da situação da sala em relação a um locação
+- **nm_room**: nome da sala - **string de no máximo 50 caracteres**
+- **id_specialty**: id da specialty relacionada a essa sala - **numero inteiro**
+- **ds_status**: status da situação da sala em relação a um locação **string de no máximo 15 caracteres**
 
 <hr></br>
 
@@ -335,13 +343,13 @@ Retorna os dados deletados para uma última conferência.
 
 Uma locação sempre estará atrelada a um terapeuta _(id_therapist)_, a uma clínica _(id_clinic)_ e a uma sala _(id_room)_. Sua estrutura é da seguinte forma:
 
-- **"dt_start"**: data que se inicia a locação **deve ser informada com data e hora** = "01/12/2022 13:40:00"
+- **"dt_start"**: data que se inicia a locação - **deve ser informada com data e hora** = "01/12/2022 13:40:00"
 
 - **"dt_end"**: data que se finaliza a locação = "day60" ou "hr20"\*
 
-- **"id_room"**: id da sala que se quer locar
-- **"id_clinic"**: id da clínica onde se vai alugar a sala
-- **"id_therapist"**: id do terapeuta que está fazendo a locação
+- **"id_room"**: id da sala que se quer locar - **número inteiro**
+- **"id_clinic"**: id da clínica onde se vai alugar a sala - **número inteiro**
+- **"id_therapist"**: id do terapeuta que está fazendo a locação - **número inteiro**
 
 ## Atenção ao campo dt_end
 
@@ -365,8 +373,8 @@ Esta rota aceita os seguintes parâmetros:
 - **filt_por**: escolher um campo para filtrar
 - **filt_valor**: escolher um valor do campo que se quer filtrar
 
-O parâmetro _filt_por_ foi pensando para ser usado com datas, os campos dt*start e dt_end por exemplo, mas nada impede de ser usado por qualquer outro campo.
-O parâmetro *filt_valor* juntamente com \_filt_por* torna-se possível filtrar as locações por datas. Os dados retornam sempre da data escolhida em diante.
+O parâmetro _filt_por_ foi pensando para ser usado com datas, os campos 'dt_start' e 'dt_end' por exemplo, mas nada impede de ser usado por qualquer outro campo.
+O parâmetro _filt_valor_ juntamente com _filt_por_ torna-se possível filtrar as locações por datas. Os dados retornam sempre da data escolhida em diante.
 
 Exemplo de url:
 **_baseUrl_/locations?filt_por=dt_start&dir=asc&order_by=dt_start&filt_valor=2021/12/08**
