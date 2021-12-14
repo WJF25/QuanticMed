@@ -208,7 +208,10 @@ def get_location_by_therapist(therapist_id):
 
 
 def get_location_by_clinic(clinic_id):
+
     filtered_data = Locations.query.filter_by(id_clinic=clinic_id).all()
+    if filtered_data is None:
+        return {"erro": "Clínica não encontrada"}
 
     response = [dict(location_data) for location_data in filtered_data]
 
