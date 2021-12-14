@@ -13,8 +13,8 @@ from sqlalchemy import and_
 
 
 def create_customer():
-    customer_data: dict = request.get_json()
     session = current_app.db.session
+    customer_data: dict = request.get_json()
 
     try:
         verify_keys(customer_data, "customer", "post")
@@ -22,8 +22,7 @@ def create_customer():
         customer = Customers(**customer_data)
         session.add(customer)
         session.commit()
-
-        return jsonify(customer), 201
+        
     except DataError as e:
         if e.orig.pgcode == STRING_DATA_RIGHT_TRUNCATION:
             return {"error": "Valor mais longo que o permitido"}, 400
@@ -36,11 +35,11 @@ def create_customer():
         return jsonify(E.value), 400
     except WrongKeyError as E:
         return jsonify({"Erro": E.value}), 400
-    return {"erro": "Desculpe, nós não entendemos sua requisição"}, 400
+    response = dict(customer)
+    return jsonify(response), 201
 
 
 def update_customer_by_id(id_customer):
-
     session = current_app.db.session
     data_to_update: dict = request.get_json()
     request_keys = list(data_to_update.keys())
@@ -76,12 +75,10 @@ def update_customer_by_id(id_customer):
 def delete_customer_by_id(id_customer):
     session = current_app.db.session
     try:
-        cate_to_deleted = Customers.query.filter_by(
-            id_customer=id_customer
-        ).one_or_none()
-        if not cate_to_deleted:
-            raise CustomerNotFoundError({"msg": "customer not found"})
-        session.delete(cate_to_deleted)
+        customer = Customers.query.filter_by(id_customer=id_customer).first()
+        if customer == None:
+            raise CustomerNotFoundError({"erro": "Cliente não encontrado"})
+        session.delete(customer)
         session.commit()
         return "", 204
     except CustomerNotFoundError as E:

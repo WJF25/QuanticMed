@@ -12,12 +12,11 @@ import datetime
 
 
 def create_appointment():
+    data = request.get_json()
     session = current_app.db.session
-    appointments = session.query(Sessions).filter(or_(Sessions.ds_status == 'agendado', Sessions.ds_status == 'ativada')).all()
+    appointments = session.query(Sessions).filter(and_(Sessions.id_therapist == data["id_therapist"], Sessions.ds_status == "agendado")).all()
     dict_appoint = [dict(appointment) for appointment in appointments]
-    print(dict_appoint)
     try:
-        data = request.get_json()
         date_start = data["dt_start"]
         date_end = data["dt_end"]
         for i in dict_appoint:

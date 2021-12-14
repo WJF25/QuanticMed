@@ -68,47 +68,47 @@ class Clinics(db.Model):
     def check_email(self, key, value):
         pattern = r'^[\w]+@[\w]+\.[\w]{2,4}$'
         if not re.match(pattern, value):
-            raise EmailError({'erro': 'E-mail inválido'})
+            raise EmailError({'erro': 'E-mail inválido. Formato válido: usuario@email.com.'})
         return value
 
     @validates('nr_telephone')
     def check_telephone(self, key, value):
         pattern = r'\d{10}'
         if not re.match(pattern, value) and value != '':
-            raise NumericError({'erro': 'Telefone residencial inválido'})
+            raise NumericError({'erro': 'Telefone residencial inválido. Formato válido: 10 dígitos numéricos.'})
         return value
 
     @validates('nr_cpf')
     def check_cpf(self, key, value):
         pattern = r'^\d{11}$'
         if not re.match(pattern, value):
-            raise NumericError({'erro': 'Cpf inválido'})
+            raise NumericError({'erro': 'Cpf inválido. Formato válido: 11 dígitos numéricos.'})
         return value
 
     @validates('nr_cnpj')
     def check_cnpj(self, key, value):
         pattern = r'^\d{14}$'
         if not re.match(pattern, value):
-            raise NumericError({'erro': 'Cnpj inválido'})
+            raise NumericError({'erro': 'Cnpj inválido. Formato válido: 14 dígitos numéricos.'})
         return value
 
     @validates('nr_cellphone')
     def check_cellphone(self, key, value):
         pattern = r'^\d{10,11}$'
         if not re.match(pattern, value) and value != '':
-            raise NumericError({'erro': 'Telefone celular inválido'})
+            raise NumericError({'erro': 'Telefone celular inválido. Formato válido: 10-11 dígitos numéricos.'})
         return value
 
     @validates('nr_zipcode')
     def check_zipcode(self, key, value):
         pattern = r'^\d{8}$'
         if not re.match(pattern, value) and value != '':
-            raise NumericError({'erro': 'CEP inválido'})
+            raise NumericError({'erro': 'CEP inválido. Formato válido: 8 dígitos numéricos.'})
         return value
 
     @validates('nr_address')
     def check_address(self, key, value):
         pattern = r'^\d{1,9}$'
         if not re.match(pattern, value):
-            raise NumericError({'erro': 'Número residencial inválido'})
+            raise NumericError({'erro': 'Número residencial inválido. Formato válido: 1-9 dígitos numéricos.'})
         return value

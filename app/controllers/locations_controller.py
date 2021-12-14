@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import desc, asc, between, and_, not_
 from app.models.rooms_model import Rooms
 from app.models.therapists_model import Therapists
+from app.exc.sessions_errors import SessionDateAlreadyInUse
 
 
 
@@ -21,10 +22,7 @@ def create_location():
         data['dt_end'] = datetime.strptime(data['dt_start'], "%d/%m/%Y %H:%M:%S") + timedelta(hours=int(data.get('dt_end', 1)[2:])) if "day" not in data.get('dt_end') else datetime.strptime(data['dt_start'], "%d/%m/%Y %H:%M:%S") + timedelta(days=int(data.get('dt_end', "day1")[3:]))
         query = Locations.query.where(Locations.id_room == data['id_room']).all()
         
-        
         verify_possiblle_dates(query, data)
-
-        
 
         location = Locations(**data)
 
@@ -43,6 +41,10 @@ def create_location():
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
     except DateAlreadyInUseError as Error:
         return {"erro": Error.value}, 409
+    except SessionDateAlreadyInUse:
+        return jsonify({"erro": "Data já está sendo usada"}), 400
+    except ValueError:
+        return jsonify({"erro": "Formato de data errado. Formato válido: %d/%m/%Y %H:%M:%S"}), 400
 
     
     response = dict(location)
@@ -76,7 +78,7 @@ def delete_location(location_id):
     Rooms.query.filter_by(id_room=response_location['room']['id_room']).update(data)
     session.commit()
 
-    return jsonify({"Locação Excluída":response_location})
+    return jsonify({}), 204
 
 
 def update_location(location_id):
@@ -115,6 +117,10 @@ def update_location(location_id):
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
     except  NoExistingValueError as error:
         return jsonify({"erro": error.value}), 404
+    except ValueError:
+        return jsonify({"erro": "Formato de data errado. Formato válido: %d/%m/%Y %H:%M:%S"}), 400
+    except SessionDateAlreadyInUse:
+        return jsonify({"erro": "Data já está sendo usada"}), 400
     
     response = dict(location)
     del response['clinic'], response['therapist']
