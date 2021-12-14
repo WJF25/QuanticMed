@@ -126,10 +126,7 @@ def get_locations():
 
     param:dict = dict(request.args)    
 
-    # if param.get("filt_valor", "None").isnumeric():
-    #     param['filt_valor'] = int(param['filt_valor'])
-
-
+    
 
     q_options = {
         "asc": asc(getattr(Locations, param.get('order_by', 'id_location'))),

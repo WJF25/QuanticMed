@@ -128,7 +128,15 @@ def get_room_schedule(id_room):
 
     param: dict = dict(request.args)
 
-    room = Sessions.query.select_from(Sessions).join(Therapists).join(Locations).join(Rooms).filter(
-        Rooms.id_room == id_room).filter(Sessions.ds_status == param.get("status_consulta", "agendado")).all()
+    if param:
+        room = Sessions.query.select_from(Sessions).join(Therapists).join(Locations).join(Rooms).filter(
+            Rooms.id_room == id_room).filter(Sessions.ds_status == param.get("status_consulta", "agendado")).all()
+        return jsonify(room), 200
 
+    room = Sessions.query.select_from(Sessions).join(Therapists).join(Locations).join(Rooms).filter(
+            Rooms.id_room == id_room).all()
+        
     return jsonify(room), 200
+    
+
+    
