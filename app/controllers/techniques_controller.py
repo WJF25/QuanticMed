@@ -6,7 +6,8 @@ from app.models.techniques_model import Techniques
 from app.models.customers_model import Customers
 from psycopg2.errors import ForeignKeyViolation, NotNullViolation
 from sqlalchemy.exc import IntegrityError, DataError
-
+from flask_jwt_extended import jwt_required
+from app.controllers.login_controller import only_role
 
 def create_technique():
     session = current_app.db.session
@@ -91,7 +92,8 @@ def delete_technique(technique_id):
 
     return jsonify({}), 204
 
-
+@only_role('TRP')
+@jwt_required()
 def get_techniques():
     session = current_app.db.session
     param: dict = dict(request.args)

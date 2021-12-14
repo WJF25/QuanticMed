@@ -21,6 +21,7 @@ class Attendants(db.Model):
     ds_email: str
     dt_creation_time: str
     id_clinic: int
+    fl_admin: str
 
     __tablename__ = 'attendants'
 
@@ -48,6 +49,7 @@ class Attendants(db.Model):
         yield 'dt_creation_time', self.dt_creation_time
         yield 'id_clinic', self.id_clinic
         yield 'clinic', self.clinic
+        yield 'fl_admin', self.fl_admin
 
     @validates('nm_attendant')
     def title_name(self, key, value):

@@ -22,7 +22,7 @@ def create_specialty():
         if type(int_error.orig) == UniqueViolation:
             return jsonify({"erro": "Especialidade já existe"}), 409
         if type(int_error.orig) == NotNullViolation:
-            return jsonify({"erro: Campo não pode ser vazio"}), 400
+            return jsonify({"erro": "Campo não pode ser vazio"}), 400
         
     return jsonify(response), 201
 
@@ -47,7 +47,7 @@ def update_specialty_by_id(specialty_id):
         if type(int_error.orig) == UniqueViolation:
             return jsonify({"erro": "Especialidade já existe"}), 409
         if type(int_error.orig) == NotNullViolation:
-            return jsonify({"erro: Campo não pode ser vazio"}), 400
+            return jsonify({"erro": "Campo não pode ser vazio"}), 400
 
     response = Specialties.query.get(specialty_id)
     session.commit()

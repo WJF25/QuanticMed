@@ -1,7 +1,8 @@
-from app.exc.excessoes import SessionDateAlreadyInUse, WrongKeyError
+from app.exc.excessoes import WrongKeyError
 from app.exc.excessoes import NoExistingValueError
 from app.exc.excessoes import NumericError, PasswordMinLengthError
 from datetime import datetime as dt
+from app.exc.sessions_errors import SessionDateAlreadyInUse
 
 
 
@@ -13,10 +14,11 @@ def verify_keys(kwargs, option, method="post"):
         "attendant": {'nm_attendant', 'nr_cpf', 'nr_telephone', 'nr_cellphone', 'ds_password', 'id_clinic', 'ds_email'},
         "customer": {'nm_customer', 'nr_cpf', 'nr_rg', 'nm_mother', 'nm_father', 'nr_healthcare', 'ds_address', 'nr_telephone', "nr_cellphone", 'ds_email', 'dt_birthdate'},
         "therapist": {'nm_therapist', 'nr_cpf', 'nr_crm', 'nm_user', 'ds_password', 'ds_specialties', 'nr_cellphone', 'ds_email','ds_status'},
-        "clinic": {'nm_clinic', 'nr_cnpj', 'ds_address', 'nr_number', 'ds_complement', 'ds_district', 'nr_zipcode', 'ds_city', 'ds_uf', 'ds_email', 'nr_telephone', 'nr_cellphone'},
+        "clinic": {'nm_clinic', 'nr_cnpj', 'ds_address', 'nr_address', 'ds_complement', 'ds_district', 'nr_zipcode', 'ds_city', 'ds_uf', 'ds_email', 'nr_telephone', 'nr_cellphone'},
         "specialty":{'nm_specialty'},
         "session":{'id_customer', 'id_therapist', 'dt_start', 'dt_end', 'ds_status' },
-        "technique":{'nm_technique','dt_start', 'dt_end', 'ds_comment', 'id_therapist', 'nm_customer' }
+        "technique":{'nm_technique','dt_start', 'dt_end', 'ds_comment', 'id_therapist', 'nm_customer' },
+        "login":{'nr_cpf','ds_password' },
     }
 
     keys = set(kwargs.keys())
