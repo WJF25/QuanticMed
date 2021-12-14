@@ -8,3 +8,4 @@ bp.patch("<int:session_id>")(update_appointment_by_id)
 bp.delete("<int:session_id>")(delete_appointment)
 bp.get("<int:session_id>")(get_appointment_by_id)
 bp.get("")(get_all_appointments)
+

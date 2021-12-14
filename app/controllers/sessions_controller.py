@@ -1,8 +1,9 @@
-from flask import request, jsonify, current_app
+from flask import json, request, jsonify, current_app
 from werkzeug.wrappers import response
 from app.exc.excessoes import WrongKeyError, NoExistingValueError
 from app.exc.sessions_errors import SessionDateAlreadyInUse
 from app.models.sessions_model import Sessions
+from app.services.schedule_emails import get_appointments_emails
 from app.controllers.verifications import verify_keys
 from psycopg2.errors import ForeignKeyViolation
 from sqlalchemy.exc import IntegrityError
@@ -15,7 +16,7 @@ def create_appointment():
     session = current_app.db.session
     appointments = session.query(Sessions).filter(or_(Sessions.ds_status == 'agendado', Sessions.ds_status == 'ativada')).all()
     dict_appoint = [dict(appointment) for appointment in appointments]
-    print(dict_appoint)
+    
     try:
         data = request.get_json()
         date_start = data["dt_start"]
@@ -49,6 +50,7 @@ def create_appointment():
             return jsonify({"erro": "Chave(s) estrangeira(s) não existe(m)"}), 400
     except SessionDateAlreadyInUse as Error:
         return {"erro": Error.value}, 409
+    get_appointments_emails(response.get("id_session"))
     return jsonify(response), 201
 
 
@@ -74,7 +76,7 @@ def update_appointment_by_id(session_id):
     except IntegrityError as int_error:
         if type(int_error.orig) == ForeignKeyViolation:
             return jsonify({"erro": "Chave(s) estrangeira(s) não existe(m)"}), 400
-
+    
     return jsonify(response), 201
 
 
@@ -111,3 +113,5 @@ def get_all_appointments():
 
     response =  [dict(appointment) for appointment in appointments]
     return jsonify(response)
+
+
