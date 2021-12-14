@@ -34,7 +34,7 @@ def create_customer():
         return jsonify(E.value), 400
     except IntegrityError as E:
         if isinstance(E.orig, UniqueViolation):
-            return {"erro": "cliente já cadastrado no banco de dados"}, 409
+            return {"erro": "Rg ou cpf já cadastrado no banco de dados"}, 409
     except NumericError as E:
         return jsonify(E.value), 400
     except WrongKeyError as E:
@@ -100,7 +100,7 @@ def get_customers():
         query_filter = and_((Customers.nm_customer.contains(name)))
         customer = Customers.query.filter(query_filter).one_or_none()
         if not customer:
-            return {"erro": "Não achamos nada no nosso banco de dados"}, 404
+            return {"erro": "Cliente não encontrado"}, 404
         return jsonify(customer)
     customers = (
             session.query(Customers)
@@ -112,7 +112,7 @@ def get_customers():
             .items
         )
     if len(customers) < 1:
-        return {"erro": "Não achamos nada no nosso banco de dados"}, 404
+        return {"erro": "Nenhum cliente encontrado"}, 404
     return jsonify(customers), 200
 
 @only_role('ATD')
@@ -120,8 +120,8 @@ def get_customers():
 def get_customer_by_id(id_customer):
     customer = Customers.query.filter_by(id_customer=id_customer).one_or_none()
     if not customer:
-        return {"erro": "Não achamos nada no nosso banco de dados"}, 200
-    return jsonify(customer), 404
+        return {"erro": "Cliente não encontrado"}, 404
+    return jsonify(customer), 200
 
 @only_role('ATD')
 @jwt_required()
@@ -129,15 +129,15 @@ def get_customers_appointments(id_customer):
     session = current_app.db.session
     customer = session.query(Customers).filter_by(
         id_customer=id_customer).one_or_none()
+    if not customer:
+        return {"erro": "Cliente não encontrado"}, 404
     dict_costumer = dict(customer)
     del dict_costumer["id_customer"]
-    if not customer:
-        return {"erro": "Não achamos nada no nosso banco de dados"}
     sessions = Sessions.query.filter_by(id_customer=id_customer).all()
     if len(sessions) < 1:
-        return {"erro": "Não achamos nada no nosso banco de dados"}, 404
+        return {"erro": "Não há sessões para este cliente"}, 404
     dict_costumer["sessões"] = sessions
-    return dict_costumer, 200
+    return jsonify(dict_costumer), 200
 
 @only_role('TRP')
 @jwt_required()
@@ -148,7 +148,7 @@ def get_customer_records(id_customer):
             id_customer=id_customer).one_or_none()
     )
     if not customer_record:
-        return {"erro": "Não achamos nada no nosso banco de dados"}, 404
+        return {"erro": "Prontuário não encontrado"}, 404
     customer = (
         session.query(Customers)
         .filter_by(id_customer=customer_record.id_customer)

@@ -1,6 +1,4 @@
 from flask import request, jsonify, current_app
-import sqlalchemy
-import psycopg2
 from sqlalchemy import desc, asc, and_
 from app.models.attendants_model import Attendants
 from sqlalchemy.exc import DataError, IntegrityError
@@ -10,8 +8,6 @@ from app.exc.excessoes import NumericError, EmailError, WrongKeyError
 from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
 
-@only_role('ATD')
-@jwt_required()
 def create_attendant():
 
     session = current_app.db.session
@@ -34,9 +30,9 @@ def create_attendant():
         return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
-            return {"error": "Cpf já cadastrado"}, 409
+            return {"error": "Cpf ou email já cadastrado"}, 409
         if e.orig.pgcode == FOREIGN_KEY_VIOLATION:
-            return {"error": "Clínica não cadastrada"}, 400
+            return {"error": "Clínica não cadastrada"}, 404
     except NumericError as error:
         return jsonify(error.value), 400
     except WrongKeyError as error:
@@ -51,7 +47,7 @@ def update_attendant(id):
 
     filtered_data = Attendants.query.get(id)
     if filtered_data is None:
-        return {"erro": "Recepcionista não encontrado"}
+        return {"erro": "Recepcionista não encontrado"}, 404
 
     try:
         verify_keys(data, "attendant", "patch")
@@ -70,7 +66,7 @@ def update_attendant(id):
         if e.orig.pgcode == UNIQUE_VIOLATION:
             return {"error": "Cpf já cadastrado"}, 409
         if e.orig.pgcode == FOREIGN_KEY_VIOLATION:
-            return {"error": "Clínica não cadastrada"}, 400
+            return {"error": "Clínica não cadastrada"}, 404
     except NumericError as error:
         return jsonify(error.value), 400
     except WrongKeyError as error:
@@ -85,7 +81,7 @@ def delete_attendant(id):
 
     filtered_data = Attendants.query.get(id)
     if filtered_data is None:
-        return {"error": "Recepcionista não encontrado"}
+        return {"error": "Recepcionista não encontrado"}, 404
 
     session.delete(filtered_data)
     session.commit()
@@ -134,7 +130,7 @@ def get_attendant_by_id(id):
 
     filtered_data = Attendants.query.get(id)
     if filtered_data is None:
-        return {"erro": "Recepcionista não encontrado"}
+        return {"erro": "Recepcionista não encontrado"}, 404
 
     """[comment]
         Understand the code below checking the explanation at comment in get_all_attendants function 

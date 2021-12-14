@@ -1,7 +1,4 @@
 from flask import request, jsonify, current_app
-import sqlalchemy
-import psycopg2
-from sqlalchemy import and_, or_
 from app.models.clinics_model import Clinics
 from sqlalchemy.exc import IntegrityError, DataError
 from psycopg2.errorcodes import UNIQUE_VIOLATION, STRING_DATA_RIGHT_TRUNCATION
@@ -51,7 +48,7 @@ def update_clinic(id):
     filtered_data = Clinics.query.get(id)
 
     if filtered_data is None:
-        return {"erro": "Clinica não existe"}
+        return {"erro": "Clinica não existe"}, 404
 
     try:
         verify_keys(data, "clinic", "patch")
@@ -84,7 +81,7 @@ def delete_clinic(id):
 
     filtered_data = Clinics.query.get(id)
     if filtered_data is None:
-        return {"error": "Clinica não encontrada"}
+        return {"error": "Clinica não encontrada"}, 404
 
     session.delete(filtered_data)
     session.commit()
@@ -97,11 +94,11 @@ def get_clinics_by_id(id):
     clinic = Clinics.query.filter_by(id_clinic=id).first()
     if clinic is None:
         return jsonify({"erro": "Clínica não existe"}), 404
-    return jsonify(clinic)
+    return jsonify(clinic), 200
 
 @only_role('ATD')
 @jwt_required()
 def get_clinics():
     clinic = Clinics.query.all()
 
-    return jsonify(clinic)
+    return jsonify(clinic), 200

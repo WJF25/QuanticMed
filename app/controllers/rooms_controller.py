@@ -50,7 +50,7 @@ def delete_room(room_id):
     session.delete(room)
     session.commit()
 
-    return jsonify({"Sala Deletada": room_response}), 200
+    return jsonify({}), 204
 
 @only_role('ATD')
 @jwt_required()
@@ -69,7 +69,7 @@ def update_room(room_id):
         session.commit()
     except WrongKeyError as error:
         return jsonify({"Erro": error.value}), 400
-    except DataError as data_error:
+    except DataError:
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
     except NoExistingValueError as error:
         return jsonify({"erro": error.value}), 404
@@ -95,7 +95,7 @@ def get_rooms():
             .paginate(int(param.get('page', 1)), int(param.get('per_page', 10)), max_per_page=20).items
 
         response = [dict(room) for room in ordered_rooms]
-        return jsonify(response)
+        return jsonify(response), 200
 
     rooms = session.query(Rooms).paginate(int(param.get('page', 1)), int(
         param.get('per_page', 10)), max_per_page=20).items

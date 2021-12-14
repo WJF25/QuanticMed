@@ -83,7 +83,7 @@ def get_specialties():
     if param:
         ordered_specialties = session.query(Specialties).paginate(int(param.get('page',1)),int(param.get('per_page',40)), max_per_page=20).items
         response = [dict(specialty) for specialty in ordered_specialties]
-        return jsonify(response)
+        return jsonify(response), 200
 
 
     specialties = session.query(Specialties).paginate(int(param.get('page',1)),int(param.get('per_page',40)), max_per_page=20).items

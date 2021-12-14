@@ -106,7 +106,7 @@ def get_techniques():
         ordered_techniques = session.query(Techniques).paginate(
             int(param.get('page', 1)), int(param.get('per_page', 10)), max_per_page=20).items
         response = [dict(technique) for technique in ordered_techniques]
-        return jsonify(response)
+        return jsonify(response), 200
 
     techniques = session.query(Techniques).paginate(
         int(param.get('page', 1)), int(param.get('per_page', 10)), max_per_page=20).items

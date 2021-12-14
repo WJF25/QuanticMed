@@ -1,5 +1,4 @@
 from flask import request, jsonify, current_app
-from werkzeug.wrappers import response
 from app.exc.excessoes import WrongKeyError, NoExistingValueError
 from app.exc.sessions_errors import SessionDateAlreadyInUse
 from app.models.sessions_model import Sessions
@@ -44,7 +43,7 @@ def create_appointment():
         response = dict(appointment)
     except WrongKeyError as error:
         return jsonify({"erro": error.value}), 400
-    except DataError as data_error:
+    except DataError:
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
     except IntegrityError as int_error:
         if type(int_error.orig) == ForeignKeyViolation:
@@ -70,7 +69,7 @@ def update_appointment_by_id(session_id):
         session.commit()
     except WrongKeyError as error:
         return jsonify({"Erro": error.value}), 400
-    except DataError as data_error:
+    except DataError:
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
     except NoExistingValueError as error:
         return jsonify({"erro": error.value}), 404

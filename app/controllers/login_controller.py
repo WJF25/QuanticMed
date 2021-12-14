@@ -23,7 +23,7 @@ def login():
         attendant: Attendants = session.query(Attendants).filter_by(nr_cpf=data['nr_cpf']).first()
 
         if therapist == None and attendant  == None:
-            return jsonify({"erro": "Não existe usuário com este CPF"}), 401
+            return jsonify({"erro": "Não existe usuário com este CPF"}), 404
 
         if therapist != None:
             if therapist.check_password(data['ds_password']):

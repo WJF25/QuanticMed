@@ -67,7 +67,7 @@ def update_therapist(id):
 
         filtered_data = Therapists.query.get(id)
         if filtered_data is None:
-            return {"error": "Terapeuta não encontrado"}
+            return {"error": "Terapeuta não encontrado"}, 404
 
         for key, value in data.items():
             setattr(filtered_data, key, value)
@@ -99,7 +99,7 @@ def delete_therapist(id):
 
     filtered_data = Therapists.query.get(id)
     if filtered_data is None:
-        return {"error": "Terapeuta não encontrado"}
+        return {"error": "Terapeuta não encontrado"}, 404
 
     session.delete(filtered_data)
     session.commit()
@@ -144,7 +144,7 @@ def get_all_therapists():
 def get_therapist_by_id(id):
     filtered_data = Therapists.query.get(id)
     if filtered_data is None:
-        return {"erro": "Terapeuta não encontrado"}
+        return {"erro": "Terapeuta não encontrado"}, 404
 
     return jsonify(filtered_data), 200
 
@@ -156,7 +156,7 @@ def get_costumer_by_therapist(therapist_id):
         Therapists).filter_by(id_therapist=therapist_id).all()
 
     if len(therapist) == 0:
-        return {"erro": "Este terapeuta não possui nenhum cliente"}
+        return {"erro": "Este terapeuta não possui nenhum cliente"}, 404
 
     return jsonify(therapist), 200
 
