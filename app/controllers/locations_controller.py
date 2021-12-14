@@ -1,16 +1,19 @@
 from flask import request, jsonify, current_app
-from sqlalchemy.sql.elements import not_
 from app.exc.excessoes import DateAlreadyInUseError, WrongKeyError, NoExistingValueError
 from app.models.locations_model import Locations
 from app.controllers.verifications import verify_keys, verify_none_values, verify_possiblle_dates
 from psycopg2.errors import ForeignKeyViolation, UniqueViolation, NotNullViolation
 from sqlalchemy.exc import IntegrityError, DataError
 from datetime import datetime, timedelta
-from sqlalchemy import desc, asc, between, and_, not_
+from sqlalchemy import desc, asc
 from app.models.rooms_model import Rooms
 from app.models.therapists_model import Therapists
+from app.exc.sessions_errors import SessionDateAlreadyInUse
+from flask_jwt_extended import jwt_required
+from app.controllers.login_controller import only_role
 
-
+@only_role('ATD')
+@jwt_required()
 def create_location():
     session = current_app.db.session
 
@@ -42,6 +45,10 @@ def create_location():
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
     except DateAlreadyInUseError as Error:
         return {"erro": Error.value}, 409
+    except SessionDateAlreadyInUse:
+        return jsonify({"erro": "Data já está sendo usada"}), 400
+    except ValueError:
+        return jsonify({"erro": "Formato de data errado. Formato válido: %d/%m/%Y %H:%M:%S"}), 400
 
     response = dict(location)
     del response['clinic'], response['therapist']
@@ -53,7 +60,8 @@ def create_location():
 
     return jsonify(response), 201
 
-
+@only_role('ATD')
+@jwt_required()
 def delete_location(location_id):
     session = current_app.db.session
 
@@ -74,9 +82,10 @@ def delete_location(location_id):
         id_room=response_location['room']['id_room']).update(data)
     session.commit()
 
-    return jsonify({"Locação Excluída": response_location})
+    return jsonify({}), 204
 
-
+@only_role('ATD')
+@jwt_required()
 def update_location(location_id):
     session = current_app.db.session
 
@@ -116,13 +125,18 @@ def update_location(location_id):
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
     except NoExistingValueError as error:
         return jsonify({"erro": error.value}), 404
-
+    except ValueError:
+        return jsonify({"erro": "Formato de data errado. Formato válido: %d/%m/%Y %H:%M:%S"}), 400
+    except SessionDateAlreadyInUse:
+        return jsonify({"erro": "Data já está sendo usada"}), 409
+    
     response = dict(location)
     del response['clinic'], response['therapist']
 
     return jsonify(response), 200
 
-
+@only_role('ATD')
+@jwt_required()
 def get_locations():
     session = current_app.db.session
 
@@ -153,7 +167,7 @@ def get_locations():
             location["id_clinic"] = clinic_data.id_clinic
             location['therapists'] = location['therapist']['nm_therapist']
             del location['therapist']
-        return jsonify(response)
+        return jsonify(response), 200
 
     locations = session.query(Locations).all()
     response = [dict(location) for location in locations]
@@ -167,9 +181,10 @@ def get_locations():
         location['therapists'] = location['therapist']['nm_therapist']
         del location['therapist']
 
-    return jsonify(response)
+    return jsonify(response), 200
 
-
+@only_role('ATD')
+@jwt_required()
 def get_locations_by_id(location_id):
 
     location = Locations.query.filter_by(id_location=location_id).first()
@@ -187,9 +202,10 @@ def get_locations_by_id(location_id):
     response['therapists'] = response['therapist']['nm_therapist']
     del response['therapist']
 
-    return jsonify(response)
+    return jsonify(response), 200
 
-
+@only_role('ATD')
+@jwt_required()
 def get_location_by_therapist(therapist_id):
     session = current_app.db.session
     location = session.query(Locations).join(Therapists)\
@@ -205,14 +221,15 @@ def get_location_by_therapist(therapist_id):
         location['therapists'] = location['therapist']['nm_therapist']
         del location['therapist']
 
-    return jsonify(response)
+    return jsonify(response), 200
 
-
+@only_role('ATD')
+@jwt_required()
 def get_location_by_clinic(clinic_id):
 
     filtered_data = Locations.query.filter_by(id_clinic=clinic_id).all()
     if filtered_data is None:
-        return {"erro": "Clínica não encontrada"}
+        return {"erro": "Clínica não encontrada"}, 404
 
     response = [dict(location_data) for location_data in filtered_data]
 

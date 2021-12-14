@@ -59,7 +59,7 @@ class Therapists(db.Model):
     def check_email(self, key, value):
         pattern = r'^[\w]+@[\w]+\.[\w]{2,4}$'
         if not re.match(pattern, value):
-            raise EmailError({'erro': 'E-mail inválido'})
+            raise EmailError({'erro': 'E-mail inválido. Formato válido: usuario@email.com'})
         return value
 
     @validates('ds_status')
@@ -70,21 +70,21 @@ class Therapists(db.Model):
     def check_cpf(self, key, value):
         pattern = r'^\d{11}$'
         if not re.match(pattern, value):
-            raise NumericError({'erro': 'Cpf inválido'})
+            raise NumericError({'erro': 'Cpf inválido. Formato válido: 11 dígitos númericos.'})
         return value
 
     @validates('nr_cellphone')
     def check_cellphone(self, key, value):
         pattern = r'^\d{10,11}$'
         if not re.match(pattern, value) and value != '':
-            raise NumericError({'erro': 'Telefone celular inválido'})
+            raise NumericError({'erro': 'Telefone celular inválido. Formato válido: 10-11 dígitos numéricos.'})
         return value
 
     @validates('nr_crm')
     def check_crm(self, key, value):
         pattern = r'^\d{4,10}\/[A-Z]{2}$'
         if not re.match(pattern, value):
-            raise NumericError({'erro': 'CRM inválido'})
+            raise NumericError({'erro': 'CRM inválido. Formato válido: 4-10 dígitos numéricos / 2 caracteres em letra maiúscula. Exemplo: 0000/SP.'})
         return value
 
     @property
