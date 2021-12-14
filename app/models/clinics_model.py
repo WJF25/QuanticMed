@@ -108,7 +108,7 @@ class Clinics(db.Model):
 
     @validates('nr_address')
     def check_address(self, key, value):
-        pattern = r'^\d{10}$'
+        pattern = r'^\d{1,9}$'
         if not re.match(pattern, value):
             raise NumericError({'erro': 'Número residencial inválido'})
         return value
