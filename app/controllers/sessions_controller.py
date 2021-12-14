@@ -33,6 +33,8 @@ def create_appointment():
                 raise SessionDateAlreadyInUse("data já está sendo usada")
             if d1 >= d3 and d1 <= d4 or d2 >= d3 and d2 <= d4:
                 raise SessionDateAlreadyInUse("data já está sendo usada")
+            if d1 <= d3 and d2 >= d4:
+                raise SessionDateAlreadyInUse("data já está sendo usada")
         verify_keys(data, "session", "post")
         appointment = Sessions(**data)
         session.add(appointment)
