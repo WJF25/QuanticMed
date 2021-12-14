@@ -1,6 +1,6 @@
 from flask import request, jsonify, current_app
 from sqlalchemy.sql.elements import not_
-from app.exc.excessoes import WrongKeyError, NoExistingValueError
+from app.exc.excessoes import SessionDateAlreadyInUse, WrongKeyError, NoExistingValueError
 from app.models.locations_model import Locations
 from app.controllers.verifications import verify_keys, verify_none_values, verify_possiblle_dates
 from psycopg2.errors import ForeignKeyViolation, UniqueViolation,NotNullViolation
@@ -23,10 +23,9 @@ def create_location():
         query = Locations.query.where(Locations.id_room == data['id_room']).all()
         
         
-        check = verify_possiblle_dates(query, data)
+        verify_possiblle_dates(query, data)
 
-        if not check:
-            return jsonify({"Erro": "período Não disponível para essa sala"}), 400
+        
 
         location = Locations(**data)
 
@@ -43,6 +42,9 @@ def create_location():
             return jsonify({"erro": "Chave(s) estrangeira(s) não existe(m)"}), 400
     except DataError as data_error:
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
+    except SessionDateAlreadyInUse as Error:
+        return {"erro": Error.value}, 409
+
     
     response = dict(location)
     del response['clinic'], response['therapist']

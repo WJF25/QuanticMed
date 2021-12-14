@@ -1,4 +1,4 @@
-from app.exc.excessoes import WrongKeyError
+from app.exc.excessoes import SessionDateAlreadyInUse, WrongKeyError
 from app.exc.excessoes import NoExistingValueError
 from app.exc.excessoes import NumericError, PasswordMinLengthError
 from datetime import datetime as dt
@@ -75,11 +75,16 @@ def verify_possiblle_dates(query, data):
         dt_start_user = dt.strptime(data.get('dt_start'), "%d/%m/%Y %H:%M:%S")
         dt_end_user = data.get('dt_end')
 
-        
+        count = 0
+        count1 = 0
         if dt_start_user < dt_start_location and dt_end_user < dt_start_location:
-            return True
+            count += 1
         elif dt_start_user > dt_start_location and dt_start_user > dt_end_location:
+            count1 += 1
+    else:
+        if count == len(query) or count1 == len(query):
             return True
+        else:
+            raise SessionDateAlreadyInUse("data já está sendo usada")
     
-    return False
     
