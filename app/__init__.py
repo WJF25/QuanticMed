@@ -4,6 +4,7 @@ from app.configs import migrations, database, auth
 from app import routes
 from environs import Env
 from datetime import timedelta
+from flask_cors import CORS
 
 env = Env()
 env.read_env()
@@ -16,7 +17,7 @@ def create_app() -> Flask:
     app.config["JSON_SORT_KEYS"] = False
     app.config['JWT_SECRET_KEY'] = getenv('JWT_SECRET_KEY')
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
-
+    CORS(app)
     database.init_app(app)
     migrations.init_app(app)
     routes.init_app(app)
