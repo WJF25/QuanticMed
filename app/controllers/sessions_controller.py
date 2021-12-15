@@ -1,7 +1,9 @@
 from flask import request, jsonify, current_app
 from app.exc.excessoes import WrongKeyError, NoExistingValueError
 from app.exc.sessions_errors import SessionDateAlreadyInUse
+from app.models.customers_model import Customers
 from app.models.sessions_model import Sessions
+from app.models.therapists_model import Therapists
 from app.services.schedule_emails import get_appointments_emails
 from app.controllers.verifications import verify_keys
 from psycopg2.errors import ForeignKeyViolation
@@ -120,7 +122,13 @@ def get_all_appointments():
     appointments = Sessions.query.filter(query_filter).paginate(
         int(page), int(per_page), error_out=False).items
     session.commit()
+
     response =  [dict(appointment) for appointment in appointments]
+    for appointment in response:
+        customer = session.query(Customers).filter_by(id_customer = appointment['id_customer']).first()
+        therapist = session.query(Therapists).filter_by(id_therapist = appointment['id_therapist']).first()
+        appointment['customer'] = customer
+        appointment['therapist'] = therapist
     return jsonify(response)
 
 
