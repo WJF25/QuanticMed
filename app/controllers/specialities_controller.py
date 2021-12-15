@@ -4,7 +4,11 @@ from app.models.specialties_model import Specialties
 from app.controllers.verifications import verify_keys, verify_none_values
 from psycopg2.errors import UniqueViolation,NotNullViolation
 from sqlalchemy.exc import IntegrityError
+from flask_jwt_extended import jwt_required
+from app.controllers.login_controller import only_role
 
+@only_role('ATD')
+@jwt_required()
 def create_specialty():
     session = current_app.db.session
 
@@ -22,10 +26,12 @@ def create_specialty():
         if type(int_error.orig) == UniqueViolation:
             return jsonify({"erro": "Especialidade já existe"}), 409
         if type(int_error.orig) == NotNullViolation:
-            return jsonify({"erro: Campo não pode ser vazio"}), 400
+            return jsonify({"erro": "Campo não pode ser vazio"}), 400
         
     return jsonify(response), 201
 
+@only_role('ATD')
+@jwt_required()
 def update_specialty_by_id(specialty_id):
     session = current_app.db.session
     
@@ -47,36 +53,40 @@ def update_specialty_by_id(specialty_id):
         if type(int_error.orig) == UniqueViolation:
             return jsonify({"erro": "Especialidade já existe"}), 409
         if type(int_error.orig) == NotNullViolation:
-            return jsonify({"erro: Campo não pode ser vazio"}), 400
+            return jsonify({"erro": "Campo não pode ser vazio"}), 400
 
     response = Specialties.query.get(specialty_id)
+    session.commit()
 
     return jsonify(response), 201
 
+@only_role('ATD')
+@jwt_required()
 def delete_specialty(specialty_id):
     session = current_app.db.session
 
     specialty = Specialties.query.filter_by(id_specialty = specialty_id).first()
     if specialty is None:
         return jsonify({"erro": "Especialidade não existe"}), 404
-    response = dict(specialty)
     session.delete(specialty)
     session.commit()
 
-    return jsonify({"Especialidade Excluída": response}), 200
+    return jsonify({}), 204
 
+@only_role('ATD')
+@jwt_required()
 def get_specialties():
     session = current_app.db.session
     param:dict = dict(request.args)
     
     
     if param:
-        ordered_specialties = session.query(Specialties).order_by(getattr(Specialties, param['data'])).paginate(int(param.get('page',1)),int(param.get('per_page',10)), max_per_page=20).items
+        ordered_specialties = session.query(Specialties).paginate(int(param.get('page',1)),int(param.get('per_page',40)), max_per_page=20).items
         response = [dict(specialty) for specialty in ordered_specialties]
-        return jsonify(response)
+        return jsonify(response), 200
 
 
-    specialties = session.query(Specialties).paginate(int(param.get('page',1)),int(param.get('per_page',10)), max_per_page=20).items
+    specialties = session.query(Specialties).paginate(int(param.get('page',1)),int(param.get('per_page',40)), max_per_page=20).items
     response = [dict(specialty) for specialty in specialties]
 
     return jsonify(response), 200

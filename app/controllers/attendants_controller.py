@@ -1,13 +1,12 @@
-from flask import request, jsonify, current_app, render_template
-import sqlalchemy
-import psycopg2
-from sqlalchemy import and_, or_
+from flask import request, jsonify, current_app
+from sqlalchemy import desc, asc, and_
 from app.models.attendants_model import Attendants
-from sqlalchemy.exc import IntegrityError
-from psycopg2.errorcodes import UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
-from app.controllers.verifications import verify_keys, is_numeric_data
-from app.exc.excessoes import NumericError, PasswordMinLengthError, WrongKeyError
-
+from sqlalchemy.exc import DataError, IntegrityError
+from psycopg2.errorcodes import STRING_DATA_RIGHT_TRUNCATION, UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
+from app.controllers.verifications import verify_keys
+from app.exc.excessoes import NumericError, EmailError, WrongKeyError
+from flask_jwt_extended import jwt_required
+from app.controllers.login_controller import only_role
 
 def create_attendant():
 
@@ -24,20 +23,23 @@ def create_attendant():
         session.commit()
 
         return jsonify(inserted_data), 201
-
-    except WrongKeyError as error:
-        return jsonify({"Error": error.value}), 400
-    except NumericError as error:
-        return jsonify(error.value), 400
-    except PasswordMinLengthError as error:
+    except DataError as e:
+        if e.orig.pgcode == STRING_DATA_RIGHT_TRUNCATION:
+            return {"error": "Valor mais longo que o permitido"}, 400
+    except EmailError as error:
         return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
-            return {"error": "Cpf já cadastrado"}, 409
+            return {"error": "Cpf ou email já cadastrado"}, 409
         if e.orig.pgcode == FOREIGN_KEY_VIOLATION:
-            return {"error": "Clínica não cadastrada"}, 400
+            return {"error": "Clínica não cadastrada"}, 404
+    except NumericError as error:
+        return jsonify(error.value), 400
+    except WrongKeyError as error:
+        return jsonify({"Error": error.value}), 400
 
-
+@only_role('ATD')
+@jwt_required()
 def update_attendant(id):
     session = current_app.db.session
 
@@ -45,7 +47,7 @@ def update_attendant(id):
 
     filtered_data = Attendants.query.get(id)
     if filtered_data is None:
-        return {"erro": "Recepcionista não encontrado"}
+        return {"erro": "Recepcionista não encontrado"}, 404
 
     try:
         verify_keys(data, "attendant", "patch")
@@ -55,40 +57,58 @@ def update_attendant(id):
 
         session.add(filtered_data)
         session.commit()
-    except WrongKeyError as error:
-        return jsonify({"erro": error.value}), 400
-    except NumericError as error:
+    except DataError as e:
+        if e.orig.pgcode == STRING_DATA_RIGHT_TRUNCATION:
+            return {"error": "Valor mais longo que o permitido"}, 400
+    except EmailError as error:
         return jsonify(error.value), 400
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
-            return {"erro": "Cpf já cadastrado"}, 409
+            return {"error": "Cpf já cadastrado"}, 409
         if e.orig.pgcode == FOREIGN_KEY_VIOLATION:
-            return {"erro": "Clínica não cadastrada"}, 400
+            return {"error": "Clínica não cadastrada"}, 404
+    except NumericError as error:
+        return jsonify(error.value), 400
+    except WrongKeyError as error:
+        return jsonify({"Error": error.value}), 400
 
     return jsonify(filtered_data), 200
 
-
+@only_role('ATD')
+@jwt_required()
 def delete_attendant(id):
     session = current_app.db.session
 
     filtered_data = Attendants.query.get(id)
     if filtered_data is None:
-        return {"error": "Recepcionista não encontrado"}
+        return {"error": "Recepcionista não encontrado"}, 404
 
     session.delete(filtered_data)
     session.commit()
 
     return '', 204
 
-
+@only_role('ATD')
+@jwt_required()
 def get_all_attendants():
 
     page = request.args.get('page', 1)
     per_page = request.args.get('per_page', 5)
     order = request.args.get('order_by', 'id_attendant')
-    direction = request.args.get('dir', False)
+    direction = request.args.get('dir', 'asc')
+    name = request.args.get('name', '').title()
 
-    filtered_data = Attendants.query.order_by(getattr(Attendants, order)).paginate(
+    if direction != 'asc' and direction != 'desc':
+        direction = 'asc'
+
+    options = {
+        "asc": asc,
+        "desc": desc
+    }
+
+    query_filter = and_((Attendants.nm_attendant.contains(name)))
+
+    filtered_data = Attendants.query.filter(query_filter).order_by(options[direction](getattr(Attendants, order))).paginate(
         int(page), int(per_page), error_out=False).items
 
     """[comment]
@@ -102,17 +122,15 @@ def get_all_attendants():
         attendant_data["id_clinic"] = clinic_data.id_clinic
         response.append(attendant_data)
 
-    if direction:
-        response.reverse()
-
     return jsonify(response), 200
 
-
+@only_role('ATD')
+@jwt_required()
 def get_attendant_by_id(id):
 
     filtered_data = Attendants.query.get(id)
     if filtered_data is None:
-        return {"erro": "Recepcionista não encontrado"}
+        return {"erro": "Recepcionista não encontrado"}, 404
 
     """[comment]
         Understand the code below checking the explanation at comment in get_all_attendants function 

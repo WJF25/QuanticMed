@@ -23,9 +23,9 @@ class NumericError(Exception):
 
 
 class NoExistingValueError(Exception):
-    def __init__(self, value): 
-       self.value = value 
-      
+    def __init__(self, value):
+        self.value = value
+
     def __str__(self):
         return(repr(self.value))
 
@@ -36,3 +36,19 @@ class PasswordMinLengthError(Exception):
 
     def __str__(self):
         return(repr(self.value))
+
+
+class EmailError(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return(repr(self.value))
+
+
+class DateAlreadyInUseError(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)

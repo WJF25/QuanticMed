@@ -1,9 +1,11 @@
+import re
 from app.configs.database import db
 from dataclasses import dataclass
 from sqlalchemy.orm import relationship, backref, validates
-from app.exc.excessoes import NumericError
+from app.exc.excessoes import EmailError, NumericError
 from app.models.therapists_specialties_table_model import therapists_specialties_table
 import sqlalchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db: sqlalchemy = db
 
@@ -16,8 +18,9 @@ class Therapists(db.Model):
     nr_crm: str
     nr_cellphone: str
     nm_user: str
-    ds_password: str
+    ds_email: str
     ds_status: str
+    fl_admin: str
     specialties: list
 
     __tablename__ = 'therapists'
@@ -29,7 +32,9 @@ class Therapists(db.Model):
     nr_cellphone = db.Column(db.String(11))
     nm_user = db.Column(db.String(15), unique=True)
     ds_status = db.Column(db.String(15), default="ativo")
-    ds_password = db.Column(db.String(15))
+    ds_hash_password = db.Column(db.String(255))
+    ds_email = db.Column(db.String(50), nullable=False, unique=True)
+    fl_admin = db.Column(db.String(3), nullable=False, default='TRP')
 
     specialties = relationship('Specialties', secondary=therapists_specialties_table, backref=backref(
         'therapists', uselist=True), uselist=True)
@@ -41,17 +46,54 @@ class Therapists(db.Model):
         yield 'nr_crm', self.nr_crm
         yield 'nr_cellphone', self.nr_cellphone
         yield 'nm_user', self.nm_user
-        yield 'ds_password', self.ds_password
+        yield 'ds_email', self.ds_email
         yield 'ds_status', self.ds_status
+        yield 'fl_admin', self.fl_admin
         yield 'specialties', self.specialties
 
-    @validates('nm_attendant')
+    @validates('nm_therapist')
     def title_name(self, key, value):
         return value.title()
 
-    @validates('nr_cpf', 'nr_cellphone')
-    def title_name(self, key, value):
-        if not value.isnumeric():
-            raise NumericError(
-                {"message": "As chaves nr_cpf, nr_cellphone, nr_telephone devem ser numericas", "error": f"O valor {value} não é numérico"})
+    @validates('ds_email')
+    def check_email(self, key, value):
+        pattern = r'^[\w]+@[\w]+\.[\w]{2,4}$'
+        if not re.match(pattern, value):
+            raise EmailError({'erro': 'E-mail inválido. Formato válido: usuario@email.com'})
         return value
+
+    @validates('ds_status')
+    def normalize_status(self, key, value):
+        return value.lower()
+
+    @validates('nr_cpf')
+    def check_cpf(self, key, value):
+        pattern = r'^\d{11}$'
+        if not re.match(pattern, value):
+            raise NumericError({'erro': 'Cpf inválido. Formato válido: 11 dígitos númericos.'})
+        return value
+
+    @validates('nr_cellphone')
+    def check_cellphone(self, key, value):
+        pattern = r'^\d{10,11}$'
+        if not re.match(pattern, value) and value != '':
+            raise NumericError({'erro': 'Telefone celular inválido. Formato válido: 10-11 dígitos numéricos.'})
+        return value
+
+    @validates('nr_crm')
+    def check_crm(self, key, value):
+        pattern = r'^\d{4,10}\/[A-Z]{2}$'
+        if not re.match(pattern, value):
+            raise NumericError({'erro': 'CRM inválido. Formato válido: 4-10 dígitos numéricos / 2 caracteres em letra maiúscula. Exemplo: 0000/SP.'})
+        return value
+
+    @property
+    def ds_password(self):
+        raise AttributeError('password is not a readable attribute')
+
+    @ds_password.setter
+    def ds_password(self, password_to_hash):
+        self.ds_hash_password = generate_password_hash(password_to_hash)
+
+    def check_password(self, password_to_check):
+        return check_password_hash(self.ds_hash_password, password_to_check)
