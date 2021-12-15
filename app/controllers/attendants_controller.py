@@ -108,8 +108,9 @@ def get_all_attendants():
 
     query_filter = and_((Attendants.nm_attendant.contains(name)))
 
-    filtered_data = Attendants.query.filter(query_filter).order_by(options[direction](getattr(Attendants, order))).paginate(
-        int(page), int(per_page), error_out=False).items
+    filtered_data = Attendants.query.filter(query_filter).order_by(options[direction](getattr(Attendants, order))).all()
+    if filtered_data == []:
+       return {"erro": "Nenhum Recepcionista encontrado"}, 404
 
     """[comment]
         The code below is responsible for serialization the 'clinic' attribute  that is a 'Clinics' object, resulting only 'id_clinic' serialization 

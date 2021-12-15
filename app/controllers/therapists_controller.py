@@ -12,6 +12,7 @@ from app.models.specialties_model import Specialties
 from sqlalchemy import asc, desc, and_
 from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
+from sqlalchemy.orm.exc import StaleDataError
 
 @only_role('ATD')
 @jwt_required()
@@ -97,12 +98,15 @@ def update_therapist(id):
 def delete_therapist(id):
     session = current_app.db.session
 
-    filtered_data = Therapists.query.get(id)
-    if filtered_data is None:
-        return {"error": "Terapeuta não encontrado"}, 404
+    try:
+        filtered_data = Therapists.query.get(id)
+        if filtered_data is None:
+            return {"error": "Terapeuta não encontrado"}, 404
 
-    session.delete(filtered_data)
-    session.commit()
+        session.delete(filtered_data)
+        session.commit()
+    except StaleDataError:
+        return jsonify({"Error": "Este teraupeta é chave estrageira de outra entidade."}), 405
 
     return '', 204
 
@@ -111,7 +115,7 @@ def delete_therapist(id):
 def get_all_therapists():
 
     page = request.args.get('page', 1)
-    per_page = request.args.get('per_page', 5)
+    per_page = request.args.get('per_page', 100)
     order = request.args.get('order_by', 'id_therapist')
     direction = request.args.get('dir', 'asc')
     name = request.args.get('name', '').title()

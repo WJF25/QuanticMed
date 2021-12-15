@@ -36,9 +36,6 @@ class Attendants(db.Model):
     id_clinic = db.Column(db.Integer, db.ForeignKey('clinics.id_clinic'))
     fl_admin = db.Column(db.String(3), nullable=False, default='ATD')
 
-    clinic = relationship('Clinics', backref=backref(
-        'attendants', uselist=True), uselist=False)
-
     def __iter__(self):
         yield 'id_attendant', self.id_attendant
         yield 'nm_attendant', self.nm_attendant

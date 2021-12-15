@@ -181,7 +181,7 @@ def get_locations():
         for location in response:
             location['room'] = dict(location['room'])
             location['therapist'] = dict(location['therapist'])
-            del location['room']['id_room'], location['room']['specialty']
+            del location['room']['specialty']
             clinic_data = location["clinic"]
             del location["clinic"]
             location["id_clinic"] = clinic_data.id_clinic
@@ -194,7 +194,7 @@ def get_locations():
     for location in response:
         location['room'] = dict(location['room'])
         location['therapist'] = dict(location['therapist'])
-        del location['room']['id_room'], location['room']['specialty']
+        del location['room']['specialty']
         clinic_data = location["clinic"]
         del location["clinic"]
         location["id_clinic"] = clinic_data.id_clinic
@@ -215,7 +215,7 @@ def get_locations_by_id(location_id):
     response: dict = dict(location)
     response['room'] = dict(response['room'])
     response['therapist'] = dict(response['therapist'])
-    del response['room']['id_room'], response['room']['specialty']
+    del response['room']['specialty']
     clinic_data = response["clinic"]
     del response["clinic"]
     response["id_clinic"] = clinic_data.id_clinic
