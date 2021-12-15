@@ -8,6 +8,7 @@ from app.exc.excessoes import NumericError, EmailError, WrongKeyError
 from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
 
+
 def create_attendant():
 
     session = current_app.db.session
@@ -37,6 +38,7 @@ def create_attendant():
         return jsonify(error.value), 400
     except WrongKeyError as error:
         return jsonify({"Error": error.value}), 400
+
 
 @only_role('ATD')
 @jwt_required()
@@ -74,6 +76,7 @@ def update_attendant(id):
 
     return jsonify(filtered_data), 200
 
+
 @only_role('ATD')
 @jwt_required()
 def delete_attendant(id):
@@ -88,12 +91,11 @@ def delete_attendant(id):
 
     return '', 204
 
+
 @only_role('ATD')
 @jwt_required()
 def get_all_attendants():
 
-    page = request.args.get('page', 1)
-    per_page = request.args.get('per_page', 5)
     order = request.args.get('order_by', 'id_attendant')
     direction = request.args.get('dir', 'asc')
     name = request.args.get('name', '').title()
@@ -108,12 +110,11 @@ def get_all_attendants():
 
     query_filter = and_((Attendants.nm_attendant.contains(name)))
 
-    filtered_data = Attendants.query.filter(query_filter).order_by(options[direction](getattr(Attendants, order))).paginate(
-        int(page), int(per_page), error_out=False).items
+    filtered_data = Attendants.query.filter(query_filter).order_by(
+        options[direction](getattr(Attendants, order))).all()
+    if filtered_data == []:
+        return {"erro": "Nenhum Recepcionista encontrado"}, 404
 
-    """[comment]
-        The code below is responsible for serialization the 'clinic' attribute  that is a 'Clinics' object, resulting only 'id_clinic' serialization 
-    """
     response = list()
     for item in filtered_data:
         attendant_data = dict(item)
@@ -123,6 +124,7 @@ def get_all_attendants():
         response.append(attendant_data)
 
     return jsonify(response), 200
+
 
 @only_role('ATD')
 @jwt_required()

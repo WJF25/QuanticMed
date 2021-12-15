@@ -12,6 +12,8 @@ from app.models.specialties_model import Specialties
 from sqlalchemy import asc, desc, and_
 from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
+from sqlalchemy.orm.exc import StaleDataError
+
 
 @only_role('ATD')
 @jwt_required()
@@ -55,6 +57,7 @@ def create_therapist():
     except WrongKeyError as error:
         return jsonify({"Error": error.value}), 400
 
+
 @only_role('ATD')
 @jwt_required()
 def update_therapist(id):
@@ -97,21 +100,23 @@ def update_therapist(id):
 def delete_therapist(id):
     session = current_app.db.session
 
-    filtered_data = Therapists.query.get(id)
-    if filtered_data is None:
-        return {"error": "Terapeuta não encontrado"}, 404
+    try:
+        filtered_data = Therapists.query.get(id)
+        if filtered_data is None:
+            return {"error": "Terapeuta não encontrado"}, 404
 
-    session.delete(filtered_data)
-    session.commit()
+        session.delete(filtered_data)
+        session.commit()
+    except StaleDataError:
+        return jsonify({"Error": "Este terapeuta é chave estrageira de outra entidade."}), 405
 
     return '', 204
+
 
 @only_role('ATD')
 @jwt_required()
 def get_all_therapists():
 
-    page = request.args.get('page', 1)
-    per_page = request.args.get('per_page', 5)
     order = request.args.get('order_by', 'id_therapist')
     direction = request.args.get('dir', 'asc')
     name = request.args.get('name', '').title()
@@ -129,8 +134,8 @@ def get_all_therapists():
     query_filter = and_((Therapists.nm_therapist.contains(
         name)), (Therapists.ds_status.contains(status)))
 
-    filtered_data = Therapists.query.filter(query_filter).order_by(options[direction](getattr(Therapists, order))).paginate(
-        int(page), int(per_page), error_out=False).items
+    filtered_data = Therapists.query.filter(query_filter).order_by(
+        options[direction](getattr(Therapists, order))).all()
 
     response = list()
     for item in filtered_data:
@@ -138,6 +143,7 @@ def get_all_therapists():
         response.append(therapist_data)
 
     return jsonify(response), 200
+
 
 @only_role('ATD')
 @jwt_required()
@@ -162,8 +168,7 @@ def get_costumer_by_therapist(therapist_id):
 
 
 def get_therapist_schedule(id):
-    page = request.args.get('page', 1)
-    per_page = request.args.get('per_page', 20)
+
     status = request.args.get('status', '')
     order = request.args.get('order_by', 'dt_start')
     direction = request.args.get('dir', 'desc')
@@ -180,6 +185,11 @@ def get_therapist_schedule(id):
                     (Sessions.ds_status.contains(status))))
 
     filtered_data = Sessions.query.select_from(
-        Sessions).join(Therapists).filter(query_filter).order_by(options[direction](getattr(Sessions, order))).paginate(int(page), int(per_page), error_out=False).items
+        Sessions).join(Therapists).filter(query_filter).order_by(options[direction](getattr(Sessions, order))).all()
 
-    return jsonify(filtered_data), 200
+    response = [dict(appointment) for appointment in filtered_data]
+    for appointment in response:
+        customer = Customers.query.get(appointment['id_customer'])
+        appointment['customer'] = customer
+
+    return jsonify(response), 200

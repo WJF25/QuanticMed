@@ -36,9 +36,6 @@ class Attendants(db.Model):
     id_clinic = db.Column(db.Integer, db.ForeignKey('clinics.id_clinic'))
     fl_admin = db.Column(db.String(3), nullable=False, default='ATD')
 
-    clinic = relationship('Clinics', backref=backref(
-        'attendants', uselist=True), uselist=False)
-
     def __iter__(self):
         yield 'id_attendant', self.id_attendant
         yield 'nm_attendant', self.nm_attendant
@@ -57,7 +54,7 @@ class Attendants(db.Model):
 
     @validates('ds_email')
     def check_email(self, key, value):
-        pattern = r'^[\w]+@[\w]+\.[\w]{2,4}$'
+        pattern = r'^[^\@\s]+@[\w]+\.[\w]{2,4}$'
         if not re.match(pattern, value):
             raise EmailError({'erro': 'E-mail inválido. Formato válido: usuario@email.com'})
         return value

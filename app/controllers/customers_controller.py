@@ -12,6 +12,7 @@ from app.models.techniques_model import Techniques
 from sqlalchemy import and_
 from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
+from sqlalchemy.orm.exc import StaleDataError
 
 
 @only_role('ATD')
@@ -26,11 +27,12 @@ def create_customer():
         customer = Customers(**customer_data)
         session.add(customer)
         session.commit()
-        
-        customer_record = CustomersRecords(**{"id_customer": customer.id_customer})
+
+        customer_record = CustomersRecords(
+            **{"id_customer": customer.id_customer})
         session.add(customer_record)
         session.commit()
-        
+
     except DataError as e:
         if e.orig.pgcode == STRING_DATA_RIGHT_TRUNCATION:
             return {"error": "Valor mais longo que o permitido"}, 400
@@ -45,6 +47,7 @@ def create_customer():
         return jsonify({"Erro": E.value}), 400
     response = dict(customer)
     return jsonify(response), 201
+
 
 @only_role('ATD')
 @jwt_required()
@@ -80,6 +83,7 @@ def update_customer_by_id(id_customer):
     except WrongKeyError as E:
         return jsonify({"Erro": E.value}), 400
 
+
 @only_role('ATD')
 @jwt_required()
 def delete_customer_by_id(id_customer):
@@ -93,31 +97,27 @@ def delete_customer_by_id(id_customer):
         return "", 204
     except CustomerNotFoundError as E:
         return jsonify(E.value), 404
+    except StaleDataError:
+        return jsonify({"Error": "Esta cliente é chave estrageira de outra entidade."}), 405
+
 
 @only_role('ATD')
 @jwt_required()
 def get_customers():
     session = current_app.db.session
-    params: dict = dict(request.args)
-    name = request.args.get('nome', '')
+    name = request.args.get('name', '').title()
     if name:
         query_filter = and_((Customers.nm_customer.contains(name)))
-        customer = Customers.query.filter(query_filter).one_or_none()
-        if not customer:
+        customers = Customers.query.filter(query_filter).all()
+        if not customers:
             return {"erro": "Cliente não encontrado"}, 404
-        return jsonify(customer)
-    customers = (
-            session.query(Customers)
-            .paginate(
-                int(params.get("page", 1)),
-                int(params.get("per_page", 50)),
-                max_per_page=30,
-            )
-            .items
-        )
-    if len(customers) < 1:
+        return jsonify(customers), 200
+
+    customers = Customers.query.all()
+    if not customers:
         return {"erro": "Nenhum cliente encontrado"}, 404
     return jsonify(customers), 200
+
 
 @only_role('ATD')
 @jwt_required()
@@ -126,6 +126,7 @@ def get_customer_by_id(id_customer):
     if not customer:
         return {"erro": "Cliente não encontrado"}, 404
     return jsonify(customer), 200
+
 
 @only_role('ATD')
 @jwt_required()
@@ -142,6 +143,7 @@ def get_customers_appointments(id_customer):
         return {"erro": "Não há sessões para este cliente"}, 404
     dict_costumer["sessões"] = sessions
     return jsonify(dict_costumer), 200
+
 
 @only_role('TRP')
 @jwt_required()

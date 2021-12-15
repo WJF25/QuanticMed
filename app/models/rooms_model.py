@@ -1,6 +1,6 @@
 from app.configs.database import db
 from dataclasses import dataclass
-from sqlalchemy.orm import relationship, validates
+from sqlalchemy.orm import relationship, validates, backref
 from app.models.specialties_model import Specialties
 import sqlalchemy
 db: sqlalchemy = db
@@ -22,6 +22,9 @@ class Rooms(db.Model):
         db.Integer, db.ForeignKey('specialties.id_specialty'))
 
     specialty = relationship("Specialties", uselist=False)
+
+    locations = relationship("Locations", backref=backref(
+        "room", uselist=False), uselist=True, cascade="all, delete-orphan")
 
     def __iter__(self):
         yield 'id_room', self.id_room

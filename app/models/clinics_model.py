@@ -2,6 +2,7 @@ from app.configs.database import db
 from dataclasses import dataclass
 import sqlalchemy
 from sqlalchemy.orm import validates
+from sqlalchemy.orm import relationship, backref
 import re
 
 from app.exc.excessoes import EmailError, NumericError
@@ -41,6 +42,13 @@ class Clinics(db.Model):
     nr_telephone = db.Column(db.String(11))
     nr_cellphone = db.Column(db.String(11))
 
+    location = relationship("Locations", backref=backref(
+        "clinic", uselist=False), uselist=True, cascade="all, delete-orphan")
+
+    attendants = relationship('Attendants', backref=backref(
+        'clinic', uselist=False), uselist=True, cascade="all, delete-orphan")
+
+
     def __iter__(self):
         yield "id_clinic", self.id_clinic
         yield "nm_clinic", self.nm_clinic
@@ -66,7 +74,7 @@ class Clinics(db.Model):
 
     @validates('ds_email')
     def check_email(self, key, value):
-        pattern = r'^[\w]+@[\w]+\.[\w]{2,4}$'
+        pattern = r'^[^\@\s]+@[\w]+\.[\w]{2,4}$'
         if not re.match(pattern, value):
             raise EmailError({'erro': 'E-mail inválido. Formato válido: usuario@email.com.'})
         return value
