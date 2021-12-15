@@ -46,16 +46,16 @@ def sending_mails(send_to: str, data:str, hour:str, therapist:str):
     email_msg['Subject'] = "Aviso de consulta"
     email_msg.attach(MIMEText(corpo, 'html'))
 
-    caminho = "/home/waldiney/Documentos/Livros/git-cheat-sheet.pdf"
-    anexo = open(caminho, 'rb')
+    # caminho = "/home/waldiney/Documentos/Livros/git-cheat-sheet.pdf"
+    # anexo = open(caminho, 'rb')
 
-    anx = MIMEBase('application', 'octet-stream')
-    anx.set_payload(anexo.read())
-    encoders.encode_base64(anx)
+    # anx = MIMEBase('application', 'octet-stream')
+    # anx.set_payload(anexo.read())
+    # encoders.encode_base64(anx)
 
-    anx.add_header('Content-Disposition', f'attachment; filename={caminho}')
-    anexo.close()
-    email_msg.attach(anx)
+    # anx.add_header('Content-Disposition', f'attachment; filename={caminho}')
+    # anexo.close()
+    # email_msg.attach(anx)
 
 
     server.sendmail(username, email_msg['To'], email_msg.as_string())
