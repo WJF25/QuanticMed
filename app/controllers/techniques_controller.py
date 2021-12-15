@@ -8,6 +8,7 @@ from psycopg2.errors import ForeignKeyViolation, NotNullViolation
 from sqlalchemy.exc import IntegrityError, DataError
 from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
+from sqlalchemy.orm.exc import StaleDataError
 
 @only_role('TRP')
 @jwt_required()
@@ -71,12 +72,14 @@ def update_technique_by_id(technique_id):
 @jwt_required()
 def delete_technique(technique_id):
     session = current_app.db.session
-
-    technique = Techniques.query.filter_by(id_technique=technique_id).first()
-    if technique is None:
-        return jsonify({"erro": "Tecnica não existe"}), 404
-    session.delete(technique)
-    session.commit()
+    try:
+        technique = Techniques.query.filter_by(id_technique=technique_id).first()
+        if technique is None:
+            return jsonify({"erro": "Tecnica não existe"}), 404
+        session.delete(technique)
+        session.commit()
+    except StaleDataError:
+        return jsonify({"Error": "Esta técnica é chave estrageira de outra entidade."}), 405
 
     return jsonify({}), 204
 

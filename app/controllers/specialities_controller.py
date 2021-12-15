@@ -6,6 +6,7 @@ from psycopg2.errors import UniqueViolation,NotNullViolation
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
+from sqlalchemy.orm.exc import StaleDataError
 
 @only_role('ATD')
 @jwt_required()
@@ -65,11 +66,14 @@ def update_specialty_by_id(specialty_id):
 def delete_specialty(specialty_id):
     session = current_app.db.session
 
-    specialty = Specialties.query.filter_by(id_specialty = specialty_id).first()
-    if specialty is None:
-        return jsonify({"erro": "Especialidade não existe"}), 404
-    session.delete(specialty)
-    session.commit()
+    try:
+        specialty = Specialties.query.filter_by(id_specialty = specialty_id).first()
+        if specialty is None:
+            return jsonify({"erro": "Especialidade não existe"}), 404
+        session.delete(specialty)
+        session.commit()
+    except StaleDataError:
+        return jsonify({"Error": "Esta especilidade é chave estrageira de outra entidade."}), 405
 
     return jsonify({}), 204
 

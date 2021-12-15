@@ -12,7 +12,7 @@ from app.models.techniques_model import Techniques
 from sqlalchemy import and_
 from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
-
+from sqlalchemy.orm.exc import StaleDataError
 
 @only_role('ATD')
 @jwt_required()
@@ -93,6 +93,8 @@ def delete_customer_by_id(id_customer):
         return "", 204
     except CustomerNotFoundError as E:
         return jsonify(E.value), 404
+    except StaleDataError:
+        return jsonify({"Error": "Esta cliente é chave estrageira de outra entidade."}), 405
 
 @only_role('ATD')
 @jwt_required()

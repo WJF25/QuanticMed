@@ -2,6 +2,7 @@ from app.configs.database import db
 from dataclasses import dataclass
 import sqlalchemy
 from sqlalchemy.orm import validates
+from sqlalchemy.orm import relationship, backref
 import re
 
 from app.exc.excessoes import EmailError, NumericError
@@ -40,6 +41,13 @@ class Clinics(db.Model):
     ds_email = db.Column(db.String(30), unique=True)
     nr_telephone = db.Column(db.String(11))
     nr_cellphone = db.Column(db.String(11))
+
+    location = relationship("Locations", backref=backref(
+        "clinic", uselist=False), uselist=True, cascade="all, delete-orphan")
+
+    attendants = relationship('Attendants', backref=backref(
+        'clinic', uselist=False), uselist=True, cascade="all, delete-orphan")
+
 
     def __iter__(self):
         yield "id_clinic", self.id_clinic

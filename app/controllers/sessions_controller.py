@@ -14,6 +14,7 @@ import datetime
 from smtplib import SMTPAuthenticationError
 from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
+from sqlalchemy.orm.exc import StaleDataError
 
 @only_role('ATD')
 @jwt_required()
@@ -92,11 +93,14 @@ def update_appointment_by_id(session_id):
 def delete_appointment(session_id):
     session = current_app.db.session
 
-    appointment = Sessions.query.filter_by(id_session=session_id).first()
-    if appointment is None:
-        return jsonify({"erro": "Sessão não existe"}), 404
-    session.delete(appointment)
-    session.commit()
+    try:
+        appointment = Sessions.query.filter_by(id_session=session_id).first()
+        if appointment is None:
+            return jsonify({"erro": "Sessão não existe"}), 404
+        session.delete(appointment)
+        session.commit()
+    except StaleDataError:
+        return jsonify({"Error": "Esta sessão é chave estrageira de outra entidade."}), 405
 
     return jsonify({}), 204
 
