@@ -54,7 +54,7 @@ class Attendants(db.Model):
 
     @validates('ds_email')
     def check_email(self, key, value):
-        pattern = r'^[\w]+@[\w]+\.[\w]{2,4}$'
+        pattern = r'^[^\@\s]+@[\w]+\.[\w]{2,4}$'
         if not re.match(pattern, value):
             raise EmailError({'erro': 'E-mail inválido. Formato válido: usuario@email.com'})
         return value
