@@ -15,8 +15,6 @@ class Locations(db.Model):
     id_location: int
     dt_start: datetime
     dt_end: datetime
-    # room: list
-    # clinic: int
     therapists: Therapists
 
     id_location = db.Column(db.Integer, primary_key=True)
@@ -27,9 +25,6 @@ class Locations(db.Model):
     id_therapist = db.Column(
         db.Integer, db.ForeignKey("therapists.id_therapist"))
 
-    # room = relationship("Rooms", backref=backref(
-    #     "locations", uselist=True), uselist=False)
-    # clinic = relationship("Clinics", uselist=False)
     therapists = relationship("Therapists", backref=backref(
         "locations", uselist=True), uselist=False)
 
