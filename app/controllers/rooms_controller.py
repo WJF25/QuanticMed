@@ -11,6 +11,7 @@ from app.models.locations_model import Locations
 from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
 
+
 @only_role('ATD')
 @jwt_required()
 def create_rooms():
@@ -36,6 +37,7 @@ def create_rooms():
 
     return jsonify(room), 201
 
+
 @only_role('ATD')
 @jwt_required()
 def delete_room(room_id):
@@ -51,6 +53,7 @@ def delete_room(room_id):
     session.commit()
 
     return jsonify({}), 204
+
 
 @only_role('ATD')
 @jwt_required()
@@ -78,6 +81,7 @@ def update_room(room_id):
 
     return jsonify(response), 201
 
+
 @only_role('ATD')
 @jwt_required()
 def get_rooms():
@@ -90,18 +94,22 @@ def get_rooms():
     }
 
     if param:
+        if param.get('per_page'):
+            ordered_rooms = session.query(Rooms)\
+                .order_by(q_options.get(param.get("dir", "asc")))\
+                .paginate(int(param.get('page', 1)), int(param.get('per_page', 30)), max_per_page=30).items
+
+            return jsonify(ordered_rooms), 200
+
         ordered_rooms = session.query(Rooms)\
-            .order_by(q_options.get(param.get("dir", "asc")))\
-            .paginate(int(param.get('page', 1)), int(param.get('per_page', 10)), max_per_page=20).items
+            .order_by(q_options.get(param.get("dir", "asc"))).all()
 
-        response = [dict(room) for room in ordered_rooms]
-        return jsonify(response), 200
+        return jsonify(ordered_rooms), 200
 
-    rooms = session.query(Rooms).paginate(int(param.get('page', 1)), int(
-        param.get('per_page', 10)), max_per_page=20).items
-    response = [dict(room) for room in rooms]
+    rooms = session.query(Rooms).all()
 
-    return jsonify(response), 200
+    return jsonify(rooms), 200
+
 
 @only_role('ATD')
 @jwt_required()
@@ -112,6 +120,7 @@ def get_room_by_id(room_id):
         return jsonify({"erro": "Sala não existe"}), 404
 
     return jsonify(room), 200
+
 
 @only_role('ATD')
 @jwt_required()
@@ -131,6 +140,7 @@ def get_room_by_status(room_status):
 
     return jsonify(room), 200
 
+
 @only_role('ATD')
 @jwt_required()
 def get_room_schedule(id_room):
@@ -143,9 +153,6 @@ def get_room_schedule(id_room):
         return jsonify(room), 200
 
     room = Sessions.query.select_from(Sessions).join(Therapists).join(Locations).join(Rooms).filter(
-            Rooms.id_room == id_room).all()
-        
-    return jsonify(room), 200
-    
+        Rooms.id_room == id_room).all()
 
-    
+    return jsonify(room), 200

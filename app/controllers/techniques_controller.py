@@ -10,6 +10,7 @@ from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
 from sqlalchemy.orm.exc import StaleDataError
 
+
 @only_role('TRP')
 @jwt_required()
 def create_technique():
@@ -36,6 +37,7 @@ def create_technique():
 
     return jsonify(response), 201
 
+
 @only_role('TRP')
 @jwt_required()
 def update_technique_by_id(technique_id):
@@ -45,7 +47,8 @@ def update_technique_by_id(technique_id):
 
     try:
         verify_keys(data, "technique", "patch")
-        technique = Techniques.query.filter_by(id_technique=technique_id).first()
+        technique = Techniques.query.filter_by(
+            id_technique=technique_id).first()
         if technique is None:
             return jsonify({"erro": "Tecnica não existe"}), 404
         Techniques.query.filter_by(id_technique=technique_id).update(data)
@@ -68,12 +71,14 @@ def update_technique_by_id(technique_id):
 
     return jsonify(response), 201
 
+
 @only_role('TRP')
 @jwt_required()
 def delete_technique(technique_id):
     session = current_app.db.session
     try:
-        technique = Techniques.query.filter_by(id_technique=technique_id).first()
+        technique = Techniques.query.filter_by(
+            id_technique=technique_id).first()
         if technique is None:
             return jsonify({"erro": "Tecnica não existe"}), 404
         session.delete(technique)
@@ -82,6 +87,7 @@ def delete_technique(technique_id):
         return jsonify({"Error": "Esta técnica é chave estrageira de outra entidade."}), 405
 
     return jsonify({}), 204
+
 
 @only_role('TRP')
 @jwt_required()
@@ -95,11 +101,11 @@ def get_techniques():
         response = [dict(technique) for technique in ordered_techniques]
         return jsonify(response), 200
 
-    techniques = session.query(Techniques).paginate(
-        int(param.get('page', 1)), int(param.get('per_page', 10)), max_per_page=20).items
+    techniques = session.query(Techniques).all()
     response = [dict(technique) for technique in techniques]
 
     return jsonify(response), 200
+
 
 @only_role('TRP')
 @jwt_required()
