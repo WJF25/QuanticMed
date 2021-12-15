@@ -1,7 +1,7 @@
 from flask import request, jsonify, current_app
 from app.exc.excessoes import DateAlreadyInUseError, WrongKeyError, NoExistingValueError
 from app.models.locations_model import Locations
-from app.controllers.verifications import verify_keys, verify_none_values, verify_possiblle_dates
+from app.controllers.verifications import verify_keys, verify_none_values
 from psycopg2.errors import ForeignKeyViolation, UniqueViolation, NotNullViolation
 from sqlalchemy.exc import IntegrityError, DataError
 from datetime import datetime, timedelta
@@ -11,6 +11,7 @@ from app.models.therapists_model import Therapists
 from app.exc.sessions_errors import SessionDateAlreadyInUse
 from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
+from datetime import datetime as dt
 
 @only_role('ATD')
 @jwt_required()
@@ -20,13 +21,32 @@ def create_location():
     try:
         data = request.get_json()
         verify_keys(data, "location", "post")
-        data['dt_end'] = datetime.strptime(data['dt_start'], "%d/%m/%Y %H:%M:%S") + timedelta(hours=int(data.get('dt_end', 'hr1')[2:]))\
-        if "day" not in data.get('dt_end') \
-        else datetime.strptime(data['dt_start'], "%d/%m/%Y %H:%M:%S") + timedelta(days=int(data.get('dt_end', "day1")[3:]))
+        
+        # data['dt_end'] = datetime.strptime(data['dt_start'], "%d/%m/%Y %H:%M:%S") + timedelta(hours=int(data.get('dt_end', 'hr1')[2:]))\
+        # if "day" not in data.get('dt_end') \
+        # else datetime.strptime(data['dt_start'], "%d/%m/%Y %H:%M:%S") + timedelta(days=int(data.get('dt_end', "day1")[3:]))
         query = Locations.query.where(
             Locations.id_room == data['id_room']).all()
+        
+        date_start = data['dt_start']
+        date_end = data['dt_end']
+        dict_location = [dict(location) for location in query]
 
-        verify_possiblle_dates(query, data)
+        for i in dict_location:
+            d1 = dt.strptime(str(date_start), "%d/%m/%Y %H:%M:%S" )
+            d2 = dt.strptime(str(date_end), "%d/%m/%Y %H:%M:%S")
+            d3 = dt.strptime(
+                str(i["dt_start"]), "%Y-%m-%d %H:%M:%S"
+            )
+            d4 = dt.strptime(
+                str(i["dt_end"]), "%Y-%m-%d %H:%M:%S"
+            )
+            if d1 >= d3 and d2 <= d4:
+                raise SessionDateAlreadyInUse("data já está sendo usada")
+            if d1 >= d3 and d1 <= d4 or d2 > d3 and d2 <= d4:
+                raise SessionDateAlreadyInUse("data já está sendo usada")
+            if d1 <= d3 and d2 >= d4:
+                raise SessionDateAlreadyInUse("data já está sendo usada")
 
         location = Locations(**data)
 
@@ -45,8 +65,8 @@ def create_location():
         return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
     except DateAlreadyInUseError as Error:
         return {"erro": Error.value}, 409
-    except SessionDateAlreadyInUse:
-        return jsonify({"erro": "Data já está sendo usada"}), 400
+    except SessionDateAlreadyInUse as Error:
+        return jsonify({"erro": Error.value}), 409
     except ValueError:
         return jsonify({"erro": "Formato de data errado. Formato válido: %d/%m/%Y %H:%M:%S"}), 400
 
