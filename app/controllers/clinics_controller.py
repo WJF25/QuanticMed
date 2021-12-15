@@ -7,8 +7,7 @@ from app.exc.excessoes import EmailError, NumericError, WrongKeyError
 from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
 
-@only_role('ATD')
-@jwt_required()
+
 def create_clinic():
 
     session = current_app.db.session
