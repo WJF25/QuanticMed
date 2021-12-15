@@ -9,6 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import DataError
 from sqlalchemy import and_, or_
 import datetime
+from smtplib import SMTPAuthenticationError
 from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
 
@@ -33,7 +34,7 @@ def create_appointment():
             )
             if d1 >= d3 and d2 <= d4:
                 raise SessionDateAlreadyInUse("data já está sendo usada")
-            if d1 >= d3 and d1 <= d4 or d2 >= d3 and d2 <= d4:
+            if d1 >= d3 and d1 <= d4 or d2 > d3 and d2 <= d4:
                 raise SessionDateAlreadyInUse("data já está sendo usada")
             if d1 <= d3 and d2 >= d4:
                 raise SessionDateAlreadyInUse("data já está sendo usada")
@@ -42,6 +43,7 @@ def create_appointment():
         session.add(appointment)
         session.commit()
         response = dict(appointment)
+        get_appointments_emails(response.get("id_session"))
     except WrongKeyError as error:
         return jsonify({"erro": error.value}), 400
     except DataError:
@@ -51,7 +53,9 @@ def create_appointment():
             return jsonify({"erro": "Chave(s) estrangeira(s) não existe(m)"}), 400
     except SessionDateAlreadyInUse as Error:
         return {"erro": Error.value}, 409
-    get_appointments_emails(response.get("id_session"))
+    except SMTPAuthenticationError:
+        return jsonify({"erro": "Email ou senha não conferem"}), 400
+    
     return jsonify(response), 201
 
 

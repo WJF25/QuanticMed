@@ -1,15 +1,14 @@
-import smtplib
+import smtplib 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 from datetime import datetime as dt, timedelta
-
+from os import getenv
 from flask import app
 from app.models.sessions_model import Sessions
 from app.models.customers_model import Customers
 from sqlalchemy import and_
-
 from app.models.therapists_model import Therapists
 
 
@@ -17,10 +16,10 @@ from app.models.therapists_model import Therapists
 def sending_mails(send_to: str, data:str, hour:str, therapist:str):
     host = "smtp.gmail.com"
     port = 587
-    username = "stellacatblack@gmail.com"
-    password = "@Kenzie_666#"
+    username = str(getenv('EMAIL_USERNAME'))
+    password = str(getenv('EMAIL_PASSWORD'))
 
-
+    
     server = smtplib.SMTP(host, port)
 
     server.ehlo()
