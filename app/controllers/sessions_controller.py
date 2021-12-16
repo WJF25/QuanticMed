@@ -52,8 +52,8 @@ def create_appointment():
         get_appointments_emails(response.get("id_session"))
     except WrongKeyError as error:
         return jsonify({"erro": error.value}), 400
-    except DataError:
-        return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
+    except DataError as e:
+        return jsonify({"erro":str(e)}), 400
     except IntegrityError as int_error:
         if type(int_error.orig) == ForeignKeyViolation:
             return jsonify({"erro": "Chave(s) estrangeira(s) não existe(m)"}), 400
