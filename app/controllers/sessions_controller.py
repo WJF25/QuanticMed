@@ -49,7 +49,7 @@ def create_appointment():
         session.add(appointment)
         session.commit()
         response = dict(appointment)
-        get_appointments_emails(response.get("id_session"))
+        # get_appointments_emails(response.get("id_session"))
     except WrongKeyError as error:
         return jsonify({"erro": error.value}), 400
     except DataError as e:
