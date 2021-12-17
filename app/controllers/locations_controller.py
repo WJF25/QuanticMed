@@ -31,8 +31,8 @@ def create_location():
         dict_location = [dict(location) for location in query]
 
         for i in dict_location:
-            d1 = dt.strptime(str(date_start), "%d/%m/%Y %H:%M:%S")
-            d2 = dt.strptime(str(date_end), "%d/%m/%Y %H:%M:%S")
+            d1 = dt.strptime(str(date_start), "%m/%d/%Y %H:%M:%S")
+            d2 = dt.strptime(str(date_end), "%m/%d/%Y %H:%M:%S")
             d3 = dt.strptime(
                 str(i["dt_start"]), "%Y-%m-%d %H:%M:%S"
             )
@@ -59,14 +59,14 @@ def create_location():
             return jsonify({"erro": "Campo não pode ser nulo"}), 400
         if type(int_error.orig) == ForeignKeyViolation:
             return jsonify({"erro": "Chave(s) estrangeira(s) não existe(m)"}), 400
-    except DataError as data_error:
-        return jsonify({"erro": "Id's são somente números, outros campos strings"}), 400
+    except DataError as e:
+        return jsonify({"erro":str(e)}), 400
     except DateAlreadyInUseError as Error:
         return {"erro": Error.value}, 409
     except SessionDateAlreadyInUse as Error:
         return jsonify({"erro": Error.value}), 409
     except ValueError:
-        return jsonify({"erro": "Formato de data errado. Formato válido: %d/%m/%Y %H:%M:%S"}), 400
+        return jsonify({"erro": "Formato de data errado. Formato válido: %m/%d/%Y %H:%M:%S"}), 400
 
     response = dict(location)
     del response['clinic'], response['therapist']
