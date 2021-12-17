@@ -61,6 +61,8 @@ def create_appointment():
         return {"erro": Error.value}, 409
     except SMTPAuthenticationError:
         return jsonify({"erro": "Email ou senha não conferem"}), 400
+    except ValueError:
+        return jsonify({"erro": "Formato de data errado. Formato válido: %m/%d/%Y %H:%M:%S"}), 400
 
     return jsonify(response), 201
 

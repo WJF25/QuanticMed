@@ -34,6 +34,8 @@ def create_technique():
             return jsonify({"erro": "Campo não pode ser nulo"}), 400
         if type(int_error.orig) == ForeignKeyViolation:
             return jsonify({"erro": "Chave(s) estrangeira(s) não existe(m)"}), 400
+    except ValueError:
+        return jsonify({"erro": "Formato de data errado. Formato válido: %m/%d/%Y"}), 400
 
     return jsonify(response), 201
 

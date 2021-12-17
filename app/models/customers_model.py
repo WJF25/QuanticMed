@@ -138,5 +138,5 @@ class Customers(db.Model):
                 {'erro': 'Data de nascimento inválida. Mês maior que 12 ou menor que 1.'})
         if int(value[3:5]) > 31 or int(value[3:5]) < 1:
             raise NumericError(
-                {'erro': 'Data de nascimento inválida. Dua maior que 31 ou menor que 1.'})
+                {'erro': 'Data de nascimento inválida. Dia maior que 31 ou menor que 1.'})
         return value
