@@ -128,7 +128,7 @@ class Customers(db.Model):
         return value
 
     @validates('dt_birthdate')
-    def check_telephone(self, key, value):
+    def check_birthdate(self, key, value):
         pattern = r'\d{2}\/\d{2}\/\d{4}'
         if not re.match(pattern, value):
             raise NumericError(

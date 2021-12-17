@@ -9,6 +9,7 @@ from sqlalchemy.exc import IntegrityError, DataError
 from flask_jwt_extended import jwt_required
 from app.controllers.login_controller import only_role
 from sqlalchemy.orm.exc import StaleDataError
+from app.exc.excessoes import NumericError
 
 
 @only_role('TRP')
@@ -24,9 +25,12 @@ def create_technique():
         session.commit()
         response = dict(technique)
 
+    except NumericError as E:
+        return jsonify(E.value), 400
     except DataError as e:
         if e.orig.pgcode == STRING_DATA_RIGHT_TRUNCATION:
             return {"error": "Valor mais longo que o permitido"}, 400
+        return jsonify({"erro": "Formato de data errado. Formato válido: %m/%d/%Y"}), 400
     except WrongKeyError as error:
         return jsonify({"erro": error.value}), 400
     except (IntegrityError) as int_error:
@@ -34,10 +38,9 @@ def create_technique():
             return jsonify({"erro": "Campo não pode ser nulo"}), 400
         if type(int_error.orig) == ForeignKeyViolation:
             return jsonify({"erro": "Chave(s) estrangeira(s) não existe(m)"}), 400
-    except ValueError:
-        return jsonify({"erro": "Formato de data errado. Formato válido: %m/%d/%Y"}), 400
-
     return jsonify(response), 201
+
+   
 
 
 @only_role('TRP')
