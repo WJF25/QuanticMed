@@ -4,6 +4,8 @@ from datetime import datetime
 import sqlalchemy
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm import validates
+import re
+from app.exc.excessoes import NumericError
 db: sqlalchemy = db
 
 
@@ -47,3 +49,17 @@ class Techniques(db.Model):
     @validates('nm_technique')
     def normalize_name(self, key, value):
         return value.title()
+
+    @validates('dt_start', 'dt_end')
+    def check_dates(self, key, value):
+        pattern = r'\d{2}\/\d{2}\/\d{4}'
+        if not re.match(pattern, value):
+            raise NumericError(
+                {'erro': 'Data inválida. Formato válido: 00/00/0000.'})
+        if int(value[0:2]) > 12 or int(value[0:2]) < 1:
+            raise NumericError(
+                {'erro': 'Data inválida. Mês maior que 12 ou menor que 1.'})
+        if int(value[3:5]) > 31 or int(value[3:5]) < 1:
+            raise NumericError(
+                {'erro': 'Data inválida. Dia maior que 31 ou menor que 1.'})
+        return value
