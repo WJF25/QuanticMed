@@ -26,30 +26,30 @@ def create_appointment():
         Sessions.id_therapist == data["id_therapist"], Sessions.ds_status == "agendado")).all()
     dict_appoint = [dict(appointment) for appointment in appointments]
     try:
-        # date_start = data["dt_start"]
-        # date_end = data["dt_end"]
-        # for i in dict_appoint:
-        #     d1 = datetime.datetime.strptime(
-        #         str(date_start), "%d/%m/%Y %H:%M:%S")
-        #     d2 = datetime.datetime.strptime(date_end, "%d/%m/%Y %H:%M:%S")
-        #     d3 = datetime.datetime.strptime(
-        #         str(i["dt_start"]), "%Y-%m-%d %H:%M:%S"
-        #     )
-        #     d4 = datetime.datetime.strptime(
-        #         str(i["dt_end"]), "%Y-%m-%d %H:%M:%S"
-        #     )
-        #     if d1 >= d3 and d2 <= d4:
-        #         raise SessionDateAlreadyInUse("data já está sendo usada")
-        #     if d1 >= d3 and d1 <= d4 or d2 > d3 and d2 <= d4:
-        #         raise SessionDateAlreadyInUse("data já está sendo usada")
-        #     if d1 <= d3 and d2 >= d4:
-        #         raise SessionDateAlreadyInUse("data já está sendo usada")
+        date_start = data["dt_start"]
+        date_end = data["dt_end"]
+        for i in dict_appoint:
+            d1 = datetime.datetime.strptime(
+                str(date_start), "%m/%d/%Y %H:%M:%S")
+            d2 = datetime.datetime.strptime(date_end, "%m/%d/%Y %H:%M:%S")
+            d3 = datetime.datetime.strptime(
+                str(i["dt_start"]), "%Y-%m-%d %H:%M:%S"
+            )
+            d4 = datetime.datetime.strptime(
+                str(i["dt_end"]), "%Y-%m-%d %H:%M:%S"
+            )
+            if d1 >= d3 and d2 <= d4:
+                raise SessionDateAlreadyInUse("data já está sendo usada")
+            if d1 >= d3 and d1 <= d4 or d2 > d3 and d2 <= d4:
+                raise SessionDateAlreadyInUse("data já está sendo usada")
+            if d1 <= d3 and d2 >= d4:
+                raise SessionDateAlreadyInUse("data já está sendo usada")
         verify_keys(data, "session", "post")
         appointment = Sessions(**data)
         session.add(appointment)
         session.commit()
         response = dict(appointment)
-        # get_appointments_emails(response.get("id_session"))
+        get_appointments_emails(response.get("id_session"))
     except WrongKeyError as error:
         return jsonify({"erro": error.value}), 400
     except DataError as e:
